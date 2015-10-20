@@ -1,3 +1,81 @@
+2015-10-18  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION: Version 0.3.1
+
+2015-10-16  Dirk Eddelbuettel  <edd@debian.org>
+
+	* src/beqs.cpp: More robust identification of column types,
+	as well as presetting of result columns with NA values
+
+	* src/beqs.cpp: Support 'Date' types in return
+
+2015-10-11  Dirk Eddelbuettel  <edd@debian.org>
+
+	* R/beqs.R: Always return the date as the first column
+
+2015-10-05  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION: Rolled (dev) Version and Date
+
+2015-10-04  Dirk Eddelbuettel  <edd@debian.org>
+
+	* src/beqs.cpp: Reworked to return a data frame, also changed some
+	argument names for consistency
+	* R/beqs.R: Corresponding changes
+
+	* man/beqs.Rd: Ditto
+	* src/RcppExports.cpp: Ditto
+	* R/RcppExports.R: Ditto
+
+2015-10-03  Dirk Eddelbuettel  <edd@debian.org>
+
+	* src/beqs.cpp: Added verbose flag
+	* R/beqs.R: Ditto
+
+	* man/beqs.Rd: Added by running roxygenize()
+	* src/RcppExports.cpp: Updated by running compileAttributes()
+	* R/RcppExports.R: Updated by running compileAttributes()
+
+2015-10-03  Rademeyer Vermaak  <csrvermaak@hotmail.com>
+
+	* src/beqs.cpp: Add BEQS functionality
+	* R/beqs.R: Add BEQS functionality
+	* man/beqs.Rd: Corresponding manual page
+
+2015-10-01  Dirk Eddelbuettel  <edd@debian.org>
+
+	* configure: Rewritten to (locally) cache the Bloomberg header and
+	and library files making (repeated) builds quicker (issue #65)
+	* src/Makevars.win: Ditto
+
+	* .gitignore: Add blp/ and inst/include/ with cached files
+	* .Rbuildignore: Ditto
+	* cleanup: Adjusted accordingly as well
+
+2015-09-30  Dirk Eddelbuettel  <edd@debian.org>
+
+	* R/getTicks.R (getMultipleTicks): In xts mode, make timestamps
+	unique prior to merge to ensure order is preserved (issue #76)
+
+2015-09-18  Dirk Eddelbuettel  <edd@debian.org>
+
+	* .travis.yml (notifications): Added slack notification
+
+2015-09-16  Dirk Eddelbuettel  <edd@debian.org>
+
+	* R/bdp.R: Add example using override for vendor-specific data (cf
+	issue ticket #67)
+	* man/bdp.Rd: Corresponding manual page update
+
+2015-09-15  John Laing <john.laing@gmail.com>
+
+	* src/blpapi_utils.cpp: Fix Boost auto_ptr warning
+
+2015-08-19  Dirk Eddelbuettel  <edd@debian.org>
+
+	* R/bdh.R: Add example using optional parameter for monthly data
+	* man/bdh.Rd: Corresponding manual page
+
 2015-08-14  Dirk Eddelbuettel  <edd@debian.org>
 
 	* DESCRIPTION: Version 0.3.0

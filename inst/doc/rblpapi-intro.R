@@ -22,3 +22,6 @@
 ## ---- eval=FALSE---------------------------------------------------------
 #  res <- fieldSearch("vwap")
 
+## ---- eval=FALSE---------------------------------------------------------
+#  beqs("Global Oil Companies YTD Return","GLOBAL")
+
