@@ -55,43 +55,46 @@ using BloombergLP::blpapi::MessageIterator;
 
 Rcpp::DataFrame processResponseEvent(Event event, const bool verbose) {
 
-    MessageIterator msgIter(event); 			// create message iterator 
+    MessageIterator msgIter(event); 			// create message iterator
     if (!msgIter.next()) throw std::logic_error("Not a valid MessageIterator.");
 
-    Message msg = msgIter.message(); 			// get message 
+    Message msg = msgIter.message(); 			// get message
     if (verbose) msg.print(Rcpp::Rcout);
-    
-    Element response = msg.asElement(); 		// view as element
-    if (response.name().string() == "BeqsResponse") throw std::logic_error("Not a valid EQSDataResponse.");
 
-    Element data = msg.getElement("data"); 		// get data payload, extract field with display units 
+    Element response = msg.asElement(); 		// view as element
+    if (std::strcmp(response.name().string(), "BeqsResponse") != 0)
+        throw std::logic_error("Not a valid EQSDataResponse.");
+
+    Element data = msg.getElement("data"); 		// get data payload, extract field with display units
     Element fieldDisplayUnits = data.getElement("fieldDisplayUnits");
     if (verbose) fieldDisplayUnits.print(Rcpp::Rcout);
 
-    int cols = fieldDisplayUnits.numElements(); 	// copy display units into column names 
+    int cols = fieldDisplayUnits.numElements(); 	// copy display units into column names
     std::vector<std::string> colnames(cols);
     for (int i=0; i<cols; i++) {
         colnames[i] = fieldDisplayUnits.getElement(i).name().string();
     }
-          
-    Rcpp::List lst(cols);       			// Rcpp 'List' container of given number of columns 
+
+    Rcpp::List lst(cols);       			// Rcpp 'List' container of given number of columns
     Rcpp::LogicalVector chk(cols, false);
-    
+    bool allgood;
+
     Element results = data.getElement("securityData"); 	// get security data payload == actual result set
     int rows = results.numValues();                     // total number of rows in result set
     if (verbose) results.print(Rcpp::Rcout);
     if (verbose) Rcpp::Rcout << rows << " Rows expected" << std::endl;
 
-    for (int j = 0; j < min(rows, 25); j++) { 		// look at up to twenty-five rows to infer types
-        response = results.getValueAsElement(j); 	// pick j-th element to infer types 
+    for (int j = 0; j < rows; j++) { 		// look at all rows to infer types, break if all found
+        response = results.getValueAsElement(j); 	// pick j-th element to infer types
         data = response.getElement("fieldData");       	// get data payload of first elemnt
         if (verbose) data.print(Rcpp::Rcout);
 
+        allgood = true;
         for (int i=0; i<cols; i++) { 			// loop over first data set, and infer types
             if (!chk(i) &&                              // column has not been set yet
                 data.hasElement(colnames[i].c_str())) {
                 Element val = data.getElement(colnames[i].c_str());
-                if (val.datatype() == BLPAPI_DATATYPE_STRING) { 
+                if (val.datatype() == BLPAPI_DATATYPE_STRING) {
                     lst[i] = Rcpp::CharacterVector(rows, R_NaString);
                     chk[i] = true;
                 } else if (val.datatype() == BLPAPI_DATATYPE_FLOAT64) {
@@ -105,17 +108,31 @@ Rcpp::DataFrame processResponseEvent(Event event, const bool verbose) {
                     lst[i] = Rcpp::CharacterVector(rows, R_NaString);
                     chk[i] = true;
                 }
-            } 
+            }
+            allgood = allgood and chk[i];
+        }
+
+        if (allgood) {
+            break;
         }
     }
 
-    for (int i = 0; i < rows; i++) { 			// now process data 
+    if (!allgood) {               // Check if any columns have not been checked successfully - these will all set to fallback NA
+        for (int i=0; i<cols; i++) {
+            if (!chk[i]) {
+                lst[i] = Rcpp::NumericVector(rows, NA_REAL);
+                chk[i] = true;
+            }
+        }
+    }
 
-        Element elem = results.getValueAsElement(i); 	// extract i-th element 
+    for (int i = 0; i < rows; i++) { 			// now process data
+
+        Element elem = results.getValueAsElement(i); 	// extract i-th element
         Element data = elem.getElement("fieldData");    // extract its data payload
         if (verbose) data.print(Rcpp::Rcout);
 
-        for (int j = 0; j < cols; j++) { 		// over all columns 
+        for (int j = 0; j < cols; j++) { 		// over all columns
 
             if (data.hasElement(colnames[j].c_str())) { // assign, if present, to proper column and type
                 Element datapoint = data.getElement(colnames[j].c_str());
@@ -146,7 +163,7 @@ Rcpp::DataFrame processResponseEvent(Event event, const bool verbose) {
             }
         }
     }
-    
+
     lst.attr("names") = colnames;
     Rcpp::DataFrame df(lst);
     return df;
@@ -161,7 +178,7 @@ DataFrame beqs_Impl(SEXP con,
                     std::string group,
                     std::string pitdate,
                     std::string languageId,
-                    bool verbose=false) { 
+                    bool verbose=false) {
 
     Session* session = reinterpret_cast<Session*>(checkExternalPointer(con, "blpapi::Session*"));
 

@@ -1,3 +1,71 @@
+2015-12-06  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION: Version 0.3.2
+
+2015-12-04  Anonymous  <joel23888@users.noreply.github.com>
+
+	* src/getBars.cpp: Changed to support a single options vector with
+	named elements.
+	* R/getBars.R: Idem
+	* man/getBars.Rd: Corresponding manual page update
+
+2015-11-23  Dirk Eddelbuettel  <edd@debian.org>
+
+	* src/beqs.cpp: Minor postprocessing and cleanup
+
+2015-11-23  Rademeyer Vermaak  <csrvermaak@hotmail.com>
+
+	* src/beqs.cpp: More robust handling of empty return columns
+
+2015-11-20  Dirk Eddelbuettel  <edd@debian.org>
+
+	* src/beqs.cpp: Correct comparison for response type
+
+2015-11-19  Dirk Eddelbuettel  <edd@debian.org>
+
+	* configure (download): Use R to download instead of curl as the
+	latter fails to follow redirect links on e.g. OS X -- but only when
+	we have capabilities()[["libcurl"]] or else fall back to curl
+
+	* src/beqs.cpp: Make g++-5.2 happy and use std::strcmp
+
+	* .travis.yml (after_failure): Add new target to get more output
+
+	* DESCRIPTION: Roll Date and Version
+
+2015-11-16  Rademeyer Vermaak  <csrvermaak@hotmail.com>
+
+	* src/bdh.R: Correct example
+
+2015-11-09  Dirk Eddelbuettel  <edd@debian.org>
+
+	* src/getBars.cpp: Also return value-traded per bar
+	* R/getBars.R: Document additional return column
+
+2015-11-09  Whit Armstrong  <armstrong.whit@gmail.com>
+
+	* src/subscribe.cpp: Finalize live subscription
+	* R/subscribe.R: Idem
+	* man/subsribe.Rd: Idem
+
+2015-11-06  Dirk Eddelbuettel  <edd@debian.org>
+
+	* R/getBars.R: Check startTime and endTime for Datetime type;
+	added example section to manual page
+	* R/getTicks.R: Ditto
+
+	* man/getBars.Rd: Added simple example from vignette
+	* man/getTicks.Rd: Ditto
+
+2015-11-02  Whit Armstrong  <armstrong.whit@gmail.com>
+
+	* src/subscribe.cpp: Begginning of live subscription
+
+2015-10-21  Dirk Eddelbuettel  <edd@debian.org>
+
+	* R/beqs.R: Correct Date use in example section
+	* man/beqs.Rd: Ditto
+
 2015-10-18  Dirk Eddelbuettel  <edd@debian.org>
 
 	* DESCRIPTION: Version 0.3.1
