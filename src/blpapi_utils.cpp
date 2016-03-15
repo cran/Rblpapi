@@ -30,11 +30,18 @@
 #include <Rcpp.h>
 #include <blpapi_utils.h>
 
+using std::vector;
+using std::string;
 using BloombergLP::blpapi::Session;
+using BloombergLP::blpapi::Service;
 using BloombergLP::blpapi::Request;
 using BloombergLP::blpapi::Identity;
 using BloombergLP::blpapi::Datetime;
+using BloombergLP::blpapi::DatetimeParts;
 using BloombergLP::blpapi::Element;
+using BloombergLP::blpapi::Event;
+using BloombergLP::blpapi::Message;
+using BloombergLP::blpapi::MessageIterator;
 
 void* checkExternalPointer(SEXP xp_, const char* valid_tag) {
   if(xp_ == R_NilValue) {
@@ -60,9 +67,29 @@ void* checkExternalPointer(SEXP xp_, const char* valid_tag) {
   return R_ExternalPtrAddr(xp_);
 }
 
-const int bbgDateToJulianDate(const Datetime& bbg_date) {
+const int bbgDateToRDate(const Datetime& bbg_date) {
+  if(bbg_date.hasParts(DatetimeParts::TIME)) {
+    throw std::logic_error("Attempt to convert a Datetime with time parts set to an R Date.");
+  }
   const boost::gregorian::date r_epoch(1970,1,1);
   boost::gregorian::date bbg_boost_date(bbg_date.year(),bbg_date.month(),bbg_date.day());
+  boost::gregorian::date_period dp(r_epoch,bbg_boost_date);
+  return static_cast<int>(dp.length().days());
+}
+
+const int bbgDateToRDate(const double yyyymmdd_date) {
+  if(yyyymmdd_date < 0) {
+    throw std::logic_error("Attempt to convert a negative double value to an R Date.");
+  }
+  if(trunc(yyyymmdd_date)!=yyyymmdd_date) {
+    throw std::logic_error("Attempt to convert a double value with time parts set to an R Date.");
+  }
+
+  const boost::gregorian::date r_epoch(1970,1,1);
+  const int year = static_cast<int>(yyyymmdd_date/1.0e4);
+  const int month = static_cast<int>(yyyymmdd_date/1.0e2) % 100;
+  const int day = static_cast<int>(yyyymmdd_date) % 100;
+  boost::gregorian::date bbg_boost_date(year,month,day);
   boost::gregorian::date_period dp(r_epoch,bbg_boost_date);
   return static_cast<int>(dp.length().days());
 }
@@ -120,193 +147,6 @@ void addPosixClass(SEXP x) {
   SET_STRING_ELT(r_posix_class, 1, Rf_mkChar("POSIXt"));
   Rf_classgets(x, r_posix_class);
   UNPROTECT(1); //r_posix_class
-}
-
-void populateDfRow(SEXP ans, R_len_t row_index, Element& e) {
-  if(e.isNull()) { return; }
-
-  switch(e.datatype()) {
-  case BLPAPI_DATATYPE_BOOL:
-    LOGICAL(ans)[row_index] = e.getValueAsBool(); break;
-  case BLPAPI_DATATYPE_CHAR:
-    SET_STRING_ELT(ans,row_index,Rf_mkChar(e.getValueAsString())); break;
-  case BLPAPI_DATATYPE_BYTE:
-    throw std::logic_error("Unsupported datatype: BLPAPI_DATATYPE_BYTE.");
-    break;
-  case BLPAPI_DATATYPE_INT32:
-    INTEGER(ans)[row_index] = e.getValueAsInt32(); break;
-  case BLPAPI_DATATYPE_INT64:
-    if(static_cast<double>(e.getValueAsInt64()) > static_cast<double>(std::numeric_limits<int>::max())) {
-      REprintf("BLPAPI_DATATYPE_INT64 exceeds max int value on this system (assigning std::numeric_limits<int>::max()).");
-      INTEGER(ans)[row_index] = std::numeric_limits<int>::max();
-    } else {
-      INTEGER(ans)[row_index] = static_cast<int>(e.getValueAsInt64()); break;
-    }
-    break;
-  case BLPAPI_DATATYPE_FLOAT32:
-    REAL(ans)[row_index] = e.getValueAsFloat32(); break;
-  case BLPAPI_DATATYPE_FLOAT64:
-    REAL(ans)[row_index] = e.getValueAsFloat64(); break;
-  case BLPAPI_DATATYPE_STRING:
-    SET_STRING_ELT(ans,row_index,Rf_mkChar(e.getValueAsString())); break;
-  case BLPAPI_DATATYPE_BYTEARRAY:
-    throw std::logic_error("Unsupported datatype: BLPAPI_DATATYPE_BYTEARRAY."); break;
-  case BLPAPI_DATATYPE_DATE:
-    INTEGER(ans)[row_index] = bbgDateToJulianDate(e.getValueAsDatetime()); break;
-  case BLPAPI_DATATYPE_TIME:
-    //FIXME: separate out time later
-    REAL(ans)[row_index] = bbgDateToPOSIX(e.getValueAsDatetime()); break;
-  case BLPAPI_DATATYPE_DECIMAL:
-    REAL(ans)[row_index] = e.getValueAsFloat64(); break;
-  case BLPAPI_DATATYPE_DATETIME:
-    //REAL(ans)[row_index] = bbgDateToPOSIX(e.getValueAsDatetime()); break;
-    REAL(ans)[row_index] = bbgDatetimeToPOSIX(e.getValueAsDatetime()); break;
-  case BLPAPI_DATATYPE_ENUMERATION:
-    //throw std::logic_error("Unsupported datatype: BLPAPI_DATATYPE_ENUMERATION.");
-    SET_STRING_ELT(ans,row_index,Rf_mkChar(e.getValueAsString())); break;
-  case BLPAPI_DATATYPE_SEQUENCE:
-    throw std::logic_error("Unsupported datatype: BLPAPI_DATATYPE_SEQUENCE.");
-  case BLPAPI_DATATYPE_CHOICE:
-    throw std::logic_error("Unsupported datatype: BLPAPI_DATATYPE_CHOICE.");
-  case BLPAPI_DATATYPE_CORRELATION_ID:
-    INTEGER(ans)[row_index] = e.getValueAsInt32(); break;
-  default:
-    throw std::logic_error("Unsupported datatype outside of api blpapi_DataType_t scope.");
-  }
-}
-
-SEXP allocateDataFrameColumn(int fieldT, size_t n) {
-  SEXP ans;
-
-  switch(fieldT) {
-  case BLPAPI_DATATYPE_BOOL:
-    ans = PROTECT(Rf_allocVector(LGLSXP,n));
-    std::fill(LOGICAL(ans),LOGICAL(ans)+n,NA_LOGICAL);
-    break;
-  case BLPAPI_DATATYPE_CHAR:
-    ans = PROTECT(Rf_allocVector(STRSXP,n));
-    break;
-  case BLPAPI_DATATYPE_BYTE:
-    throw std::logic_error("Unsupported datatype: BLPAPI_DATATYPE_BYTE.");
-    break;
-  case BLPAPI_DATATYPE_INT32:
-  case BLPAPI_DATATYPE_INT64:
-    ans = PROTECT(Rf_allocVector(INTSXP, n));
-    std::fill(INTEGER(ans),INTEGER(ans)+n,NA_INTEGER);
-    break;
-  case BLPAPI_DATATYPE_FLOAT32:
-  case BLPAPI_DATATYPE_FLOAT64:
-    ans = PROTECT(Rf_allocVector(REALSXP,n));
-    std::fill(REAL(ans),REAL(ans)+n,NA_REAL);
-    break;
-  case BLPAPI_DATATYPE_STRING:
-    ans = PROTECT(Rf_allocVector(STRSXP,n)); break;
-  case BLPAPI_DATATYPE_BYTEARRAY:
-    throw std::logic_error("Unsupported datatype: BLPAPI_DATATYPE_BYTEARRAY.");
-    break;
-  case BLPAPI_DATATYPE_DATE:
-    ans = PROTECT(Rf_allocVector(INTSXP, n));
-    addDateClass(ans);
-    std::fill(INTEGER(ans),INTEGER(ans)+n,NA_INTEGER);
-    break;
-  case BLPAPI_DATATYPE_TIME:
-    //FIXME: separate out time later
-    ans = PROTECT(Rf_allocVector(REALSXP,n));
-    addPosixClass(ans);
-    std::fill(REAL(ans),REAL(ans)+n,NA_REAL);
-    break;
-  case BLPAPI_DATATYPE_DECIMAL:
-    ans = PROTECT(Rf_allocVector(REALSXP,n));
-    std::fill(REAL(ans),REAL(ans)+n,NA_REAL);
-    break;
-  case BLPAPI_DATATYPE_DATETIME:
-    ans = PROTECT(Rf_allocVector(REALSXP,n));
-    addPosixClass(ans);
-    std::fill(REAL(ans),REAL(ans)+n,NA_REAL);
-    break;
-  case BLPAPI_DATATYPE_ENUMERATION:
-    ans = PROTECT(Rf_allocVector(STRSXP,n));
-    break;
-  case BLPAPI_DATATYPE_SEQUENCE:
-    throw std::logic_error("Unsupported datatype: BLPAPI_DATATYPE_SEQUENCE.");
-    break;
-  case BLPAPI_DATATYPE_CHOICE:
-    throw std::logic_error("Unsupported datatype: BLPAPI_DATATYPE_CHOICE.");
-    break;
-  case BLPAPI_DATATYPE_CORRELATION_ID:
-    ans = PROTECT(Rf_allocVector(INTSXP, n));
-    break;
-  default:
-    throw std::logic_error("Unsupported datatype outside of api blpapi_DataType_t scope.");
-  }
-  return ans;
-}
-
-void addFakeRownames(SEXP x, R_len_t n) {
-  SEXP rownames = PROTECT(Rf_allocVector(INTSXP,n));
-  for(R_len_t i = 0; i < n; ++i) INTEGER(rownames)[i] = i+1;
-  Rf_setAttrib(x,Rf_install("row.names"),rownames);
-  UNPROTECT(1); // rownames
-}
-
-SEXP buildDataFrame(LazyFrameT& m, bool add_fake_rownames, bool date_column_first) {
-  if(m.empty()) { return R_NilValue; }
-  SEXP ans = PROTECT(Rf_allocVector(VECSXP, m.size()));
-
-  SEXP klass = PROTECT(Rf_allocVector(STRSXP, 1));
-  SET_STRING_ELT(klass, 0, Rf_mkChar("data.frame"));
-  Rf_classgets(ans,klass); UNPROTECT(1); // klass
-
-  if(add_fake_rownames) {
-    addFakeRownames(ans,Rf_length(m.begin()->second));
-  }
-
-  SEXP colnames = PROTECT(Rf_allocVector(STRSXP, m.size()));
-
-  // reset date_column_first to false if 'date' column not present
-  if(date_column_first && m.find(std::string("date"))==m.end()) {
-    date_column_first = false;
-  }
-
-  int i(0);
-  if(date_column_first) {
-    SET_STRING_ELT(colnames,i,Rf_mkChar("date"));
-    SET_VECTOR_ELT(ans,i,m["date"]);
-    ++i;
-
-    for (const auto &v : m) {
-      if(v.first != "date") {
-        SET_STRING_ELT(colnames,i,Rf_mkChar(v.first.c_str()));
-        SET_VECTOR_ELT(ans,i,v.second);
-        ++i;
-      }
-    }
-
-  } else {
-    for (const auto &v : m) {
-      SET_STRING_ELT(colnames,i,Rf_mkChar(v.first.c_str()));
-      SET_VECTOR_ELT(ans,i,v.second);
-      ++i;
-    }
-  }
-  Rf_setAttrib(ans, R_NamesSymbol, colnames); UNPROTECT(1); // colnames
-
-  // all columns are now safe
-  UNPROTECT(m.size());
-
-  UNPROTECT(1); // ans
-  return ans;
-}
-
-SEXP buildDataFrame(std::vector<std::string>& rownames, LazyFrameT& m) {
-  SEXP ans = PROTECT(buildDataFrame(m,false));
-  SEXP rownames_ = PROTECT(Rf_allocVector(STRSXP, rownames.size()));
-  int j(0);
-  for(const auto &v : rownames) { SET_STRING_ELT(rownames_,j++,Rf_mkChar(v.c_str())); }
-  Rf_setAttrib(ans, Rf_install("row.names"), rownames_); UNPROTECT(1); // rownames_
-
-  UNPROTECT(1); // ans
-  return ans;
 }
 
 void appendOptionsToRequest(Request& request, SEXP options_) {
@@ -382,25 +222,31 @@ void sendRequestWithIdentity(Session* session, Request& request, SEXP identity_)
   }
 }
 
-LazyFrameIteratorT assertColumnDefined(LazyFrameT& lazy_frame, BloombergLP::blpapi::Element& e, size_t n) {
-  LazyFrameIteratorT iter = lazy_frame.find(e.name().string());
+void populateDfRow(SEXP ans, R_len_t row_index, const Element& e, RblpapiT rblpapitype) {
+  // the vectors are already initialized to NAs
+  // so no need to set as NA here
+  if(e.isNull()) { return; }
 
-  // insert only if not present
-  if(iter == lazy_frame.end()) {
-    // allocateDataFrameColumn calls PROTECT when SEXP is allocated
-    SEXP column = allocateDataFrameColumn(e.datatype(), n);
-    iter = lazy_frame.insert(lazy_frame.begin(),std::pair<std::string,SEXP>(e.name().string(),column));
+  switch(rblpapitype) {
+  case RblpapiT::Logical:
+    LOGICAL(ans)[row_index] = e.getValueAsBool(); break;
+  case RblpapiT::Integer:
+    INTEGER(ans)[row_index] = e.getValueAsInt32(); break;
+  case RblpapiT::Double:
+    REAL(ans)[row_index] = e.getValueAsFloat64(); break;
+  case RblpapiT::Date:
+    // handle the case of BBG passing down dates as double in YYYYMMDD format
+    INTEGER(ans)[row_index] = e.datatype()==BLPAPI_DATATYPE_FLOAT32 || e.datatype()==BLPAPI_DATATYPE_FLOAT64 ?
+      bbgDateToRDate(e.getValueAsFloat64()) :
+      bbgDateToRDate(e.getValueAsDatetime());
+    break;
+  case RblpapiT::Datetime:
+    REAL(ans)[row_index] = bbgDateToPOSIX(e.getValueAsDatetime()); break;
+  case RblpapiT::String:
+    SET_STRING_ELT(ans,row_index,Rf_mkChar(e.getValueAsString())); break;
+  default: // try to convert it as a string
+    SET_STRING_ELT(ans,row_index,Rf_mkChar(e.getValueAsString())); break;
   }
-
-  return iter;
-}
-
-void setNames(SEXP x, std::vector<std::string>& names) {
-  SEXP names_ = PROTECT(Rf_allocVector(STRSXP, names.size()));
-  for(size_t i = 0; i < names.size(); ++i) {
-    SET_STRING_ELT(names_,i,Rf_mkChar(names[i].c_str()));
-  }
-  Rf_setAttrib(x, R_NamesSymbol, names_); UNPROTECT(1);
 }
 
 Rcpp::NumericVector createPOSIXtVector(const std::vector<double> & ticks, 
@@ -420,4 +266,181 @@ std::string vectorToCSVString(const std::vector<std::string>& vec) {
     oss << vec.back();
     return oss.str();
   }
+}
+
+// map to RblpapiT using datatype and ftype
+// both are needed b/c datatype does not distinguish between date and datetime
+RblpapiT fieldInfoToRblpapiT(const std::string& datatype, const std::string& ftype) {
+  auto iter = stringToDatatypeT.find(datatype);
+  if(iter == stringToDatatypeT.end()) {
+    std::ostringstream err;
+    err << "datatype not found: " << datatype;
+    // No throw, try to be graceful
+  }
+
+  switch(iter->second) {
+  case DatatypeT::Bool:
+    return RblpapiT::Logical;
+    break;
+  case DatatypeT::String:
+    return RblpapiT::String;
+    break;
+  case DatatypeT::Int32:
+  case DatatypeT::Int64:
+    return RblpapiT::Integer;
+    break;
+  case DatatypeT::Double:
+    return RblpapiT::Double;
+    break;
+  case DatatypeT::Datetime:
+    if(ftype=="Date") {
+      return RblpapiT::Date;
+    } else {
+      // ftype in ("Time","DateOrTime")
+      return RblpapiT::String;
+    }
+    break;
+  default:
+    // just try to return it as a string
+    return RblpapiT::String;
+    break;
+  }
+  // never gets here
+  return RblpapiT::String;
+}
+
+SEXP allocateDataFrameColumn(RblpapiT rblpapitype, const size_t n) {
+  SEXP ans;
+  switch(rblpapitype) {
+  case RblpapiT::Logical:
+    ans = PROTECT(Rf_allocVector(LGLSXP,n));
+    std::fill(LOGICAL(ans),LOGICAL(ans)+n,NA_LOGICAL);
+    break;
+  case RblpapiT::Integer:
+    ans = PROTECT(Rf_allocVector(INTSXP, n));
+    std::fill(INTEGER(ans),INTEGER(ans)+n,NA_INTEGER);
+    break;
+  case RblpapiT::Double:
+    ans = PROTECT(Rf_allocVector(REALSXP,n));
+    std::fill(REAL(ans),REAL(ans)+n,NA_REAL);
+    break;
+  case RblpapiT::Date:
+    ans = PROTECT(Rf_allocVector(INTSXP,n));
+    std::fill(INTEGER(ans),INTEGER(ans)+n,NA_INTEGER);
+    addDateClass(ans);
+    break;
+  case RblpapiT::Datetime:
+    ans = PROTECT(Rf_allocVector(STRSXP,n));
+    break;
+  case RblpapiT::String:
+    ans = PROTECT(Rf_allocVector(STRSXP,n));
+    break;
+  default: // try to convert it as a string
+    ans = PROTECT(Rf_allocVector(STRSXP,n));
+    break;
+  }
+  UNPROTECT(1);
+  return ans;
+}
+
+FieldInfo getFieldType(Session *session, Service& fieldInfoService, const std::string& field) {
+
+  Request request = fieldInfoService.createRequest("FieldInfoRequest");
+  request.append("id", field.c_str());
+  request.set("returnFieldDocumentation", false);
+  session->sendRequest(request);
+
+  FieldInfo ans;
+  while (true) {
+    Event event = session->nextEvent();
+    if (event.eventType() != Event::RESPONSE &&
+        event.eventType() != Event::PARTIAL_RESPONSE) {
+      continue;
+    }
+
+    MessageIterator msgIter(event);
+    while (msgIter.next()) {
+      Message msg = msgIter.message();
+      //msg.asElement().print(std::cout);
+      Element fields = msg.getElement("fieldData");
+      if(fields.numValues() > 1) {
+        throw std::logic_error("getFieldType: too many fields returned.");
+      }
+      Element field = fields.getValueAsElement(0);
+      if (!field.hasElement("id")) {
+        throw std::logic_error("Did not find 'id' in repsonse.");
+      }
+      if (field.hasElement("fieldError")) {
+        std::ostringstream err;
+        err << "Bad field: " << field.getElementAsString("id") << std::endl;
+        throw std::logic_error(err.str());
+      }
+      if (!field.hasElement("fieldInfo")) {
+        throw std::logic_error("Did not find fieldInfo in repsonse.");
+      }
+      Element fieldInfo = field.getElement("fieldInfo");
+      if (!fieldInfo.hasElement("mnemonic") ||
+          !fieldInfo.hasElement("datatype") ||
+          !fieldInfo.hasElement("ftype")) {
+        throw std::logic_error(
+                               "fieldInfo missing info mnemonic/datatype/ftype.");
+      }
+      ans.id = field.getElementAsString("id");
+      ans.mnemonic = fieldInfo.getElementAsString("mnemonic");
+      ans.datatype = fieldInfo.getElementAsString("datatype");
+      ans.ftype = fieldInfo.getElementAsString("ftype");
+    }
+    if (event.eventType() == Event::RESPONSE) {
+      break;
+    }
+  }
+  return ans;
+}
+
+
+std::vector<FieldInfo> getFieldTypes(Session *session,
+                                     const std::vector<std::string> &fields) {
+  const std::string APIFLDS_SVC("//blp/apiflds");
+  if (!session->openService(APIFLDS_SVC.c_str())) {
+    throw std::logic_error(std::string("Failed to open " + APIFLDS_SVC));
+  }
+  Service fieldInfoService = session->getService(APIFLDS_SVC.c_str());
+  std::vector<FieldInfo> ans;
+  for(auto field : fields) {
+    ans.push_back(getFieldType(session, fieldInfoService, field));
+  }
+  return ans;
+}
+
+Rcpp::List allocateDataFrame(const vector<string>& rownames, const vector<string>& colnames, vector<RblpapiT>& coltypes) {
+
+  if(colnames.size() != coltypes.size()) {
+    throw std::logic_error("colnames size inconsistent with column types size.");
+  }
+
+  Rcpp::List ans(colnames.size());
+  ans.attr("class") = "data.frame";
+  ans.attr("names") = colnames;
+  ans.attr("row.names") = rownames;
+  for(size_t i = 0; i < colnames.size(); ++i) {
+    ans[i] = allocateDataFrameColumn(coltypes[i], rownames.size());
+  }
+  return ans;
+}
+
+Rcpp::List allocateDataFrame(size_t nrows, const vector<string>& colnames, const vector<RblpapiT>& coltypes) {
+
+  if(colnames.size() != coltypes.size()) {
+    throw std::logic_error("colnames size inconsistent with column types size.");
+  }
+
+  Rcpp::List ans(colnames.size());
+  ans.attr("class") = "data.frame";
+  ans.attr("names") = colnames;
+  Rcpp::IntegerVector rnms(nrows); std::iota(rnms.begin(), rnms.end(), 1);
+  ans.attr("row.names") = rnms;
+  for(size_t i = 0; i < colnames.size(); ++i) {
+    ans[i] = allocateDataFrameColumn(coltypes[i], nrows);
+  }
+  return ans;
 }

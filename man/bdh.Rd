@@ -6,7 +6,7 @@
 \usage{
 bdh(securities, fields, start.date, end.date = NULL,
   include.non.trading.days = FALSE, options = NULL, overrides = NULL,
-  identity = NULL, con = defaultConnection())
+  verbose = FALSE, identity = NULL, con = defaultConnection())
 }
 \arguments{
 \item{securities}{A character vector with security symbols in
@@ -30,6 +30,9 @@ being set) as well as a value.}
 values. Each field must have both a name (designating the override
 being set) as well as a value.}
 
+\item{verbose}{A boolean indicating whether verbose operation is
+desired, defaults to \sQuote{FALSE}}
+
 \item{identity}{An optional identity object.}
 
 \item{con}{A connection object as created by a \code{blpConnect}
@@ -37,11 +40,13 @@ call, and retrieved via the internal function
 \code{defaultConnection}.}
 }
 \value{
-A list with as a entries as there are entries in
+A list with as a many entries as there are entries in
 \code{securities}; each list contains a data.frame with one row
 per observations and as many columns as entries in
 \code{fields}. If the list is of length one, it is collapsed into
-a single data frame.
+a single data frame. Note that the order of securities returned
+is determined by the backend and may be different from the order
+of securities in the \code{securities} field.
 }
 \description{
 This function uses the Bloomberg API to retrieve 'bdh' (Bloomberg
@@ -53,7 +58,7 @@ Data History) queries
 
   ## example for an options field: request monthly data; see section A.2.4 of
   ##  http://www.bloomberglabs.com/content/uploads/sites/2/2014/07/blpapi-developers-guide-2.54.pdf
-  ## for more 
+  ## for more
   opt <- c("periodicitySelection"="MONTHLY")
   bdh("SPY US Equity", c("PX_LAST", "VOLUME"),
       start.date=Sys.Date()-31*6, options=opt)

@@ -57,7 +57,8 @@ std::string getSecurityName(Event& event) {
     return ans;
 }
 
-SEXP HistoricalDataResponseToDF(Event& event) {
+Rcpp::List HistoricalDataResponseToDF(Event& event, const std::vector<std::string>& fields,
+                                      const std::vector<RblpapiT>& rtypes, bool verbose=FALSE) {
     MessageIterator msgIter(event);
     if (!msgIter.next()) {
         throw std::logic_error("Not a valid MessageIterator.");
@@ -65,35 +66,48 @@ SEXP HistoricalDataResponseToDF(Event& event) {
 
     Message msg = msgIter.message();
     Element response = msg.asElement();
-    if(std::strcmp(response.name().string(),"HistoricalDataResponse")) {
+    if (verbose) response.print(Rcpp::Rcout);
+    if (std::strcmp(response.name().string(),"HistoricalDataResponse")) {
         throw std::logic_error("Not a valid HistoricalDataResponse.");
     }
     Element securityData = response.getElement("securityData");
     Element fieldData = securityData.getElement("fieldData");
 
-    LazyFrameT lazy_frame;
+    Rcpp::List res(allocateDataFrame(fieldData.numValues(), fields, rtypes));
 
+    // i is the row iterator
     for(size_t i = 0; i < fieldData.numValues(); i++) {
         Element row = fieldData.getValueAsElement(i);
         for(size_t j = 0; j < row.numElements(); ++j) {
             Element e = row.getElement(j);
-            LazyFrameIteratorT iter = assertColumnDefined(lazy_frame,e,fieldData.numValues());
-            populateDfRow(iter->second,i,e);
+            auto it = std::find(fields.begin(),fields.end(),e.name().string());
+            if(it==fields.end()) { throw std::logic_error("Unexpected field returned."); }
+            int colindex = std::distance(fields.begin(),it);
+            populateDfRow(res[colindex], i, e, rtypes[colindex]);
         }
     }
-    return buildDataFrame(lazy_frame,true,true);
+    return res;
 }
 
 // Simpler interface with std::vector<std::string> thanks to Rcpp::Attributes
 // [[Rcpp::export]]
-SEXP bdh_Impl(SEXP con_, 
-              std::vector<std::string> securities, 
-              std::vector<std::string> fields,
-              std::string start_date_, SEXP end_date_, 
-              SEXP options_, SEXP overrides_, SEXP identity_) {
+Rcpp::List bdh_Impl(SEXP con_,
+                    std::vector<std::string> securities,
+                    std::vector<std::string> fields,
+                    std::string start_date_, SEXP end_date_,
+                    SEXP options_, SEXP overrides_,
+                    bool verbose, SEXP identity_) {
 
     Session* session = 
         reinterpret_cast<Session*>(checkExternalPointer(con_,"blpapi::Session*"));
+
+
+    // get the field info
+    std::vector<FieldInfo> fldinfos(getFieldTypes(session, fields));
+    std::vector<RblpapiT> rtypes;
+    for(auto f : fldinfos) {
+        rtypes.push_back(fieldInfoToRblpapiT(f.datatype,f.ftype));
+    }
 
     const std::string rdsrv = "//blp/refdata";
     if (!session->openService(rdsrv.c_str())) {
@@ -111,11 +125,17 @@ SEXP bdh_Impl(SEXP con_,
 
     sendRequestWithIdentity(session, request, identity_);
 
-    SEXP ans = PROTECT(Rf_allocVector(VECSXP, securities.size()));
+    Rcpp::List ans(securities.size());
     R_len_t i = 0;
 
     // capture names in case they come back out of order
     std::vector<std::string> ans_names;
+
+    // the date field was not part of the request
+    // but we need to map it into the result
+    // we always want it in the first position
+    fields.insert(fields.begin(),"date");
+    rtypes.insert(rtypes.begin(),RblpapiT::Date);
 
     while (true) {
         Event event = session->nextEvent();
@@ -123,7 +143,7 @@ SEXP bdh_Impl(SEXP con_,
         case Event::RESPONSE:
         case Event::PARTIAL_RESPONSE:
             ans_names.push_back(getSecurityName(event));
-            SET_VECTOR_ELT(ans,i++,HistoricalDataResponseToDF(event));
+            ans[i++] = HistoricalDataResponseToDF(event, fields, rtypes, verbose);
             break;
         default:
             MessageIterator msgIter(event);
@@ -134,8 +154,6 @@ SEXP bdh_Impl(SEXP con_,
         }
         if (event.eventType() == Event::RESPONSE) { break; }
     }
-
-    setNames(ans,ans_names);
-    UNPROTECT(1);
+    ans.attr("names") = ans_names;
     return ans;
 }

@@ -5,16 +5,16 @@ authenticate_Impl <- function(con_, uuid_, ip_address_) {
     .Call('Rblpapi_authenticate_Impl', PACKAGE = 'Rblpapi', con_, uuid_, ip_address_)
 }
 
-bdh_Impl <- function(con_, securities, fields, start_date_, end_date_, options_, overrides_, identity_) {
-    .Call('Rblpapi_bdh_Impl', PACKAGE = 'Rblpapi', con_, securities, fields, start_date_, end_date_, options_, overrides_, identity_)
+bdh_Impl <- function(con_, securities, fields, start_date_, end_date_, options_, overrides_, verbose, identity_) {
+    .Call('Rblpapi_bdh_Impl', PACKAGE = 'Rblpapi', con_, securities, fields, start_date_, end_date_, options_, overrides_, verbose, identity_)
 }
 
 bdp_Impl <- function(con_, securities, fields, options_, overrides_, identity_) {
     .Call('Rblpapi_bdp_Impl', PACKAGE = 'Rblpapi', con_, securities, fields, options_, overrides_, identity_)
 }
 
-bds_Impl <- function(con_, securities, field, options_, overrides_, identity_) {
-    .Call('Rblpapi_bds_Impl', PACKAGE = 'Rblpapi', con_, securities, field, options_, overrides_, identity_)
+bds_Impl <- function(con_, securities, field, options_, overrides_, verbose, identity_) {
+    .Call('Rblpapi_bds_Impl', PACKAGE = 'Rblpapi', con_, securities, field, options_, overrides_, verbose, identity_)
 }
 
 beqs_Impl <- function(con, screenName, screenType, group, pitdate, languageId, verbose = FALSE) {
@@ -25,12 +25,20 @@ blpConnect_Impl <- function(host, port) {
     .Call('Rblpapi_blpConnect_Impl', PACKAGE = 'Rblpapi', host, port)
 }
 
+bsrch_Impl <- function(con, domain, limit, verbose = FALSE) {
+    .Call('Rblpapi_bsrch_Impl', PACKAGE = 'Rblpapi', con, domain, limit, verbose)
+}
+
 fieldSearch_Impl <- function(con, searchterm, excludeterm) {
     .Call('Rblpapi_fieldSearch_Impl', PACKAGE = 'Rblpapi', con, searchterm, excludeterm)
 }
 
 getBars_Impl <- function(con, security, eventType, barInterval, startDateTime, endDateTime, options, verbose = FALSE) {
     .Call('Rblpapi_getBars_Impl', PACKAGE = 'Rblpapi', con, security, eventType, barInterval, startDateTime, endDateTime, options, verbose)
+}
+
+fieldInfo_Impl <- function(con_, fields) {
+    .Call('Rblpapi_fieldInfo_Impl', PACKAGE = 'Rblpapi', con_, fields)
 }
 
 getTicks_Impl <- function(con, security, eventType, startDateTime, endDateTime, verbose = FALSE) {

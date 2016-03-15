@@ -44,37 +44,36 @@ using BloombergLP::blpapi::Element;
 using BloombergLP::blpapi::Message;
 using BloombergLP::blpapi::MessageIterator;
 
-void getBDPResult(Event& event, LazyFrameT& lazy_frame, std::vector<std::string>& securities) {
+void getBDPResult(Event& event, Rcpp::List& res, const std::vector<std::string>& securities, const std::vector<std::string>& colnames, const std::vector<RblpapiT>& rtypes) {
     MessageIterator msgIter(event);
     if (!msgIter.next()) {
         throw std::logic_error("Not a valid MessageIterator.");
     }
     Message msg = msgIter.message();
+    //msg.asElement().print(std::cout);
     Element response = msg.asElement();
     if (std::strcmp(response.name().string(),"ReferenceDataResponse")) {
         throw std::logic_error("Not a valid ReferenceDataResponse.");
     }
     Element securityData = response.getElement("securityData");
 
-    // i is the row index
-    //REprintf("securityData.numValues(): %d\n",securityData.numValues());
     for (size_t i = 0; i < securityData.numValues(); ++i) {
-        //REprintf("i %d\n",i);
         Element this_security = securityData.getValueAsElement(i);
-        // row index is position in securities vector
-        auto row_iter = std::find(securities.begin(), securities.end(), 
-                                  this_security.getElementAsString("security"));
-        if (row_iter == securities.end()) {
-            throw std::logic_error(std::string("this security is not expected: ") + 
-                                   this_security.getElementAsString("security"));
+        size_t row_index = this_security.getElement("sequenceNumber").getValueAsInt32();
+
+        // check that the seqNum matches the order of the securities vector (it's a grave error to screw this up)
+        if(securities[row_index].compare(this_security.getElementAsString("security"))!=0) {
+            throw std::logic_error("mismatched Security sequence, please report a bug.");
         }
-        size_t row_index = std::distance(securities.begin(),row_iter);
         Element fieldData = this_security.getElement("fieldData");
-        //REprintf("fieldData.numElements(): %d\n",fieldData.numElements());
         for(size_t j = 0; j < fieldData.numElements(); ++j) {
             Element e = fieldData.getElement(j);
-            LazyFrameIteratorT iter = assertColumnDefined(lazy_frame,e,securities.size());
-            populateDfRow(iter->second,row_index,e);
+            auto col_iter = std::find(colnames.begin(), colnames.end(), e.name().string());
+            if (col_iter == colnames.end()) {
+                throw std::logic_error(std::string("column is not expected: ") + e.name().string());
+            }
+            size_t col_index = std::distance(colnames.begin(),col_iter);
+            populateDfRow(res[col_index],row_index,e,rtypes[col_index]);
         }
     }
 }
@@ -82,12 +81,21 @@ void getBDPResult(Event& event, LazyFrameT& lazy_frame, std::vector<std::string>
 // Simpler interface with std::vector<std::string> thanks to Rcpp::Attributes
 //
 // [[Rcpp::export]]
-SEXP bdp_Impl(SEXP con_, std::vector<std::string> securities, std::vector<std::string> fields, 
-              SEXP options_, SEXP overrides_, SEXP identity_) {
+Rcpp::List bdp_Impl(SEXP con_, std::vector<std::string> securities, std::vector<std::string> fields,
+                    SEXP options_, SEXP overrides_, SEXP identity_) {
 
     // via Rcpp Attributes we get a try/catch block with error propagation to R "for free"
     Session* session = 
         reinterpret_cast<Session*>(checkExternalPointer(con_, "blpapi::Session*"));
+
+    // get the field info
+    std::vector<FieldInfo> fldinfos(getFieldTypes(session, fields));
+    std::vector<RblpapiT> rtypes;
+    for(auto f : fldinfos) {
+        rtypes.push_back(fieldInfoToRblpapiT(f.datatype,f.ftype));
+        //std::cout << f.id << ":" << f.mnemonic << ":" << f.datatype << ":" << f.ftype << std::endl;
+    }
+    Rcpp::List res(allocateDataFrame(securities, fields, rtypes));
 
     const std::string rdsrv = "//blp/refdata";
     if (!session->openService(rdsrv.c_str())) {
@@ -99,15 +107,12 @@ SEXP bdp_Impl(SEXP con_, std::vector<std::string> securities, std::vector<std::s
     createStandardRequest(request, securities, fields, options_, overrides_);
     sendRequestWithIdentity(session, request, identity_);
 
-    LazyFrameT lazy_frame;
-
     while (true) {
         Event event = session->nextEvent();
-        //REprintf("%d\n",event.eventType());
         switch (event.eventType()) {
         case Event::RESPONSE:
         case Event::PARTIAL_RESPONSE:
-            getBDPResult(event, lazy_frame, securities);
+            getBDPResult(event, res, securities, fields, rtypes);
             break;
         default:
             MessageIterator msgIter(event);
@@ -118,5 +123,5 @@ SEXP bdp_Impl(SEXP con_, std::vector<std::string> securities, std::vector<std::s
         }
         if (event.eventType() == Event::RESPONSE) { break; }
     }
-    return buildDataFrame(securities,lazy_frame);
+    return res;
 }
