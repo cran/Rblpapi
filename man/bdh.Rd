@@ -63,9 +63,18 @@ Data History) queries
   bdh("SPY US Equity", c("PX_LAST", "VOLUME"),
       start.date=Sys.Date()-31*6, options=opt)
 
+  ## example for options and overrides
+  opt <- c("periodicitySelection" = "QUARTERLY")
+  ovrd <- c("BEST_FPERIOD_OVERRIDE"="1GQ")
+  bdh("IBM US Equity", "BEST_SALES", start.date=Sys.Date()-365.25*4,
+      options=opt, overrides=ovrd)
 }
 }
 \author{
 Whit Armstrong and Dirk Eddelbuettel
+}
+\seealso{
+For historical futures series, see \sQuote{DOCS #2072138 <GO>}
+on the Bloomberg terminal about selecting different rolling conventions.
 }
 

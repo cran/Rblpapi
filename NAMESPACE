@@ -1,9 +1,10 @@
 useDynLib(Rblpapi)
 
 import(Rcpp)
-importFrom(utils, "object.size", "packageDescription")
+importFrom(utils, "object.size", "packageVersion")
 export(blpConnect,
        blpDisconnect,
+       defaultConnection,
        blpAuthenticate,
        bdp,
        bdh,

@@ -1,3 +1,101 @@
+2016-05-08  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (Version): Release 0.3.4
+
+2016-04-20  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (SystemRequirements): Clarify need for C++11 compiler
+
+2016-04-15  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (Version): Rolled minor version
+
+	* src/blpVersion.cpp (getHeaderVersion): Use more defensive
+	implementation not reyling on VersionInfo class
+	* src/blpVersion.cpp (getRuntimeVersion): Ditto
+
+	* src/blpVersion.cpp (getVersionIdentifier): Disabled as not in
+	currently used Windows setup, and not used in startup message
+
+2016-04-12  Dirk Eddelbuettel  <edd@debian.org>
+
+        * R/bdh.R: Added note about 'DOCS #2072138 <GO>' on rolling futures
+	* man/bdh.Rd: Ditto
+
+2016-04-04  Dirk Eddelbuettel  <edd@debian.org>
+
+	* NAMESPACE: Import utils::packageVersion now used in .onAttach
+
+2016-04-03  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (Version): Rolled minor version
+
+	* src/blpVersion.cpp (getVersionIdentifier, getHeaderVersion),
+	(getRunTimeVersion):  New helper functions to identify API versions
+	* man/getHeaderVersion.Rd: New manual page
+	* man/getRuntimeVersion.Rd: Ditto
+	* man/getVersionIdentifier.Rd: Ditto
+
+	* R/init.R (.onAttach): In verbose mode, show package and API version.
+
+2016-03-23  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (Version): Rolled minor version
+
+	* R/beqs.R: More restrained output from \example(..., run.dontrun=TRUE)
+	* R/bsrch.R: Idem
+	* R/fieldSearch.R: Idem
+	* R/getTicks.R: Idem
+	* man/beqs.Rd: Idem
+	* man/beqs.Rd: Idem
+	* man/bsrch.Rd: Idem
+	* man/fieldSearch.Rd: Idem
+
+	* R/bdh.R: Additional example using options and overrides (to
+	retrieve quarterly sales estimates)
+
+2016-03-22  John Laing  <john.laing@gmail.com>
+
+	* src/blpapi_utils.cpp: Add Integer64 type using REAL storage
+	* src/Rblpapi_types.h: Idem
+
+2016-03-22  Dirk Eddelbuettel  <edd@debian.org>
+
+	* R/bds.R (bds): Correct docs to state single security and field
+	* man/bds.Rd: Idem
+
+2016-03-21  John Laing  <john.laing@gmail.com>
+
+	* R/blpDisconnect.R: Fix typo
+	* R/fieldInfo.R: Idem
+	* man/blpDisconnect.Rd: Idem
+	* man/fieldInfo.Rd: Idem
+
+	* inst/unitTests/runit.examples.R: Run examples as unit test
+
+2016-03-18  John Laing  <john.laing@gmail.com>
+
+	* src/Rblpapi_types.h: Add Float type, same behavior as Double
+	* src/blpapi_utils.cpp: Idem
+
+	* inst/unitTests/runit.bdp.R: Column type tests
+
+2016-03-17  Dirk Eddelbuettel  <edd@debian.org>
+
+	* src/bdp.cpp (bdp_Impl): Support boolean option verbose
+	* R/bdp.R (bdp): Idem
+	* man/bdp.Rd (bdp): Idem
+
+	* inst/unitTests/runit.getBars.R: Correct thinko in dealing with
+	weekend / no-weekend case for data-drive unit test
+	* inst/unitTests/runit.getTicks.R: Idem
+
+2016-03-16  Dirk Eddelbuettel  <edd@debian.org>
+
+	* src/Rblpapi_types.h: Renamed from rblpapi_types.h as Rcpp
+	Attributes prefers a properly capitalized package name here
+	* src/blpapi_utils.h: Corresponding update in include
+
 2016-03-15  Dirk Eddelbuettel  <edd@debian.org>
 
 	* DESCRIPTION (Version): Release 0.3.3

@@ -9,8 +9,8 @@ bdh_Impl <- function(con_, securities, fields, start_date_, end_date_, options_,
     .Call('Rblpapi_bdh_Impl', PACKAGE = 'Rblpapi', con_, securities, fields, start_date_, end_date_, options_, overrides_, verbose, identity_)
 }
 
-bdp_Impl <- function(con_, securities, fields, options_, overrides_, identity_) {
-    .Call('Rblpapi_bdp_Impl', PACKAGE = 'Rblpapi', con_, securities, fields, options_, overrides_, identity_)
+bdp_Impl <- function(con_, securities, fields, options_, overrides_, verbose, identity_) {
+    .Call('Rblpapi_bdp_Impl', PACKAGE = 'Rblpapi', con_, securities, fields, options_, overrides_, verbose, identity_)
 }
 
 bds_Impl <- function(con_, securities, field, options_, overrides_, verbose, identity_) {
@@ -23,6 +23,36 @@ beqs_Impl <- function(con, screenName, screenType, group, pitdate, languageId, v
 
 blpConnect_Impl <- function(host, port) {
     .Call('Rblpapi_blpConnect_Impl', PACKAGE = 'Rblpapi', host, port)
+}
+
+#' This function retrieves the version of Bloomberg API headers.
+#'
+#' @title Get Bloomberg library header version
+#' @return A string with four dot-separated values for major, minor,
+#' pathch and build version of the headers.
+#' @author Dirk Eddelbuettel
+#' @seealso \code{getRuntimeVersion}
+#' @examples
+#' \dontrun{
+#'    getHeaderVersion()
+#' }
+getHeaderVersion <- function() {
+    .Call('Rblpapi_getHeaderVersion', PACKAGE = 'Rblpapi')
+}
+
+#' This function retrieves the version of Bloomberg API run-time.
+#'
+#' @title Get Bloomberg library run-time version
+#' @return A string with four dot-separated values for major, minor,
+#' pathch and build version of the run-time library.
+#' @author Dirk Eddelbuettel
+#' @seealso \code{getHeaderVersion}
+#' @examples
+#' \dontrun{
+#'    getRuntimeVersion()
+#' }
+getRuntimeVersion <- function() {
+    .Call('Rblpapi_getRuntimeVersion', PACKAGE = 'Rblpapi')
 }
 
 bsrch_Impl <- function(con, domain, limit, verbose = FALSE) {

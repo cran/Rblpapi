@@ -232,7 +232,11 @@ void populateDfRow(SEXP ans, R_len_t row_index, const Element& e, RblpapiT rblpa
     LOGICAL(ans)[row_index] = e.getValueAsBool(); break;
   case RblpapiT::Integer:
     INTEGER(ans)[row_index] = e.getValueAsInt32(); break;
+  case RblpapiT::Integer64:
+    REAL(ans)[row_index] = e.getValueAsFloat64(); break;
   case RblpapiT::Double:
+    REAL(ans)[row_index] = e.getValueAsFloat64(); break;
+  case RblpapiT::Float:
     REAL(ans)[row_index] = e.getValueAsFloat64(); break;
   case RblpapiT::Date:
     // handle the case of BBG passing down dates as double in YYYYMMDD format
@@ -286,11 +290,16 @@ RblpapiT fieldInfoToRblpapiT(const std::string& datatype, const std::string& fty
     return RblpapiT::String;
     break;
   case DatatypeT::Int32:
-  case DatatypeT::Int64:
     return RblpapiT::Integer;
+    break;
+  case DatatypeT::Int64:
+    return RblpapiT::Integer64;
     break;
   case DatatypeT::Double:
     return RblpapiT::Double;
+    break;
+  case DatatypeT::Float:
+    return RblpapiT::Float;
     break;
   case DatatypeT::Datetime:
     if(ftype=="Date") {
@@ -320,7 +329,9 @@ SEXP allocateDataFrameColumn(RblpapiT rblpapitype, const size_t n) {
     ans = PROTECT(Rf_allocVector(INTSXP, n));
     std::fill(INTEGER(ans),INTEGER(ans)+n,NA_INTEGER);
     break;
+  case RblpapiT::Integer64:
   case RblpapiT::Double:
+  case RblpapiT::Float:
     ans = PROTECT(Rf_allocVector(REALSXP,n));
     std::fill(REAL(ans),REAL(ans)+n,NA_REAL);
     break;
