@@ -20,6 +20,12 @@
 
 ##' This function uses the Bloomberg API to retrieve ticks for the requested security.
 ##'
+##' @note Bloomberg returns condition codes as well, and may return \emph{multiple
+##' observations for the same trade}. Eg for ES we can get \sQuote{AS} or
+##' \sQuote{AB} for aggressor buy or sell, \sQuote{OR} for an order participating in the
+##' matching event, or a \sQuote{TSUM} trade summary.  Note that this implies
+##' double-counting.  There may be an option for this in the API.
+##'
 ##' @title Get Ticks from Bloomberg
 ##' @param security A character variable describing a valid security ticker
 ##' @param eventType A character variable describing an event, default
@@ -31,21 +37,26 @@
 ##' @param verbose A boolean indicating whether verbose operation is
 ##' desired, defaults to \sQuote{FALSE}
 ##' @param returnAs A character variable describing the type of return
-##' object; currently supported are \sQuote{matrix} (also the default),
-##' \sQuote{fts}, \sQuote{xts} and \sQuote{zoo}
+##' object; currently supported are \sQuote{data.frame} (also the default),
+##' \sQuote{data.table}, \sQuote{fts}, \sQuote{xts} and \sQuote{zoo}
 ##' @param tz A character variable with the desired local timezone,
 ##' defaulting to the value \sQuote{TZ} environment variable, and
 ##' \sQuote{UTC} if unset
 ##' @param con A connection object as created by a \code{blpConnect}
 ##' call, and retrieved via the internal function
 ##' \code{defaultConnection}.
-##' @return A numeric matrix with elements \sQuote{time}, (as a
-##' \sQuote{POSIXct} object), \sQuote{values} and \sQuote{sizes}, or
-##' an object of the type selected in \code{returnAs}.
+##' @return Depending on the value of \sQuote{returnAs}, either a
+##' \sQuote{data.frame} or \sQuote{data.table} object also containing
+##' non-numerical information such as condition codes, or a time-indexed
+##' container of type \sQuote{fts}, \sQuote{xts} and \sQuote{zoo} with
+##' a numeric matrix containing only \sQuote{value} and \sQuote{size}.
 ##' @author Dirk Eddelbuettel
 ##' @examples
 ##' \dontrun{
 ##'   res <- getTicks("ES1 Index")
+##'   str(res)
+##'   head(res, 20)
+##'   res <- getTicks("ES1 Index", returnAs="data.table")
 ##'   str(res)
 ##'   head(res, 20)
 ##' }
@@ -54,27 +65,34 @@ getTicks <- function(security,
                      startTime = Sys.time()-60*60,
                      endTime = Sys.time(),
                      verbose = FALSE,
-                     returnAs = getOption("blpType", "matrix"),
+                     returnAs = getOption("blpType", "data.frame"),
                      tz = Sys.getenv("TZ", unset="UTC"),
                      con = defaultConnection()) {
 
+    match.arg(returnAs, c("data.frame", "fts", "xts", "zoo", "data.table"))
     if (!inherits(startTime, "POSIXt") || !inherits(endTime, "POSIXt")) {
         stop("startTime and endTime must be Datetime objects", call.=FALSE)
     }
     fmt <- "%Y-%m-%dT%H:%M:%S"
     startUTC <- format(startTime, fmt, tz="UTC")
     endUTC <- format(endTime, fmt, tz="UTC")
-    res <- getTicks_Impl(con, security, eventType, startUTC, endUTC, verbose)
+    res <- getTicks_Impl(con, security, eventType, startUTC, endUTC,
+                         setCondCodes = returnAs %in% c("data.frame", "data.table"),
+                         verbose)
 
     attr(res[,1], "tzone") <- tz
 
+
     ## return data, but omit event type which is character type
     res <- switch(returnAs,
-                  matrix = res[,-2],           # default is matrix
-                  fts    = fts::fts(res[,1], res[,-(1:2)]),
-                  xts    = xts::xts(res[,-(1:2)], order.by=res[,1]),
-                  zoo    = zoo::zoo(res[,-(1:2)], order.by=res[,1]),
-                  res)                         # fallback is also matrix
+                  data.frame = res,            # default is data.frame
+                  fts        = fts::fts(res[,1], res[,-c(1:2,5)]),
+                  xts        = xts::xts(res[,-c(1:2,5)], order.by=res[,1]),
+                  zoo        = zoo::zoo(res[,-c(1:2,5)], order.by=res[,1]),
+                  data.table = data.table::data.table(date=data.table::as.IDate(res[,1]),
+                                                      time=data.table::as.ITime(res[,1]),
+                                                      res[, -1]),
+                  res)                         # fallback also data.frame
     return(res)   # to return visibly
 
 }
@@ -93,9 +111,8 @@ getTicks <- function(security,
 ##' @param verbose A boolean indicating whether verbose operation is
 ##' desired, defaults to \sQuote{FALSE}
 ##' @param returnAs A character variable describing the type of return
-##' object; the default is return a matrix with results as received;
-##' optionally a \sQuote{wide} \code{xts} object with merged data can
-##' be returned
+##' object; currently supported are \sQuote{data.frame} (also the default)
+##' and \sQuote{data.table}
 ##' @param tz A character variable with the desired local timezone,
 ##' defaulting to the value \sQuote{TZ} environment variable, and
 ##' \sQuote{UTC} if unset
@@ -111,38 +128,22 @@ getMultipleTicks <- function(security,
                              startTime = Sys.time()-60*60,
                              endTime = Sys.time(),
                              verbose = FALSE,
-                             returnAs = getOption("blpType", "matrix"),
+                             returnAs = getOption("blpType", "data.frame"),
                              tz = Sys.getenv("TZ", unset="UTC"),
                              con = defaultConnection()) {
 
+    match.arg(returnAs, c("data.frame", "data.table"))
     fmt <- "%Y-%m-%dT%H:%M:%S"
     startUTC <- format(startTime, fmt, tz="UTC")
     endUTC <- format(endTime, fmt, tz="UTC")
-    res <- getTicks_Impl(con, security, eventType, startUTC, endUTC, verbose)
+    res <- getTicks_Impl(con, security, eventType, startUTC, endUTC, TRUE, verbose)
 
     attr(res[,1], "tzone") <- tz
 
-    if (returnAs == "xts") {
-
-        ## Make timestamps unique
-        res[,1] <- xts::make.index.unique(res[,1], eps=2e-6)
-
-        ## Subset into blocks for each event type, creating xts
-        rl <- lapply(eventType,
-                 function(s) {
-                     x <- subset(res, res$type==s)
-                     colnames(x)[3] <- tolower(s)
-                     colnames(x)[4] <- paste0(tolower(s), "sz")
-                     xts::xts(x[,3:4], order.by=x[,1])
-                 })
-        x <- do.call(merge, rl)
-
-        ## Use na.locf to carry bid, ask, .. forward, but do not use trade column
-        ind <- !grepl("trade", colnames(x))
-        x[,ind] <- zoo::na.locf(x[,ind])
-
-        zoo::index(x) <- trunc(zoo::index(x)) # truncated time stamp down to seconds
-        return(x)
+    if (returnAs == "data.table") {
+        res <- data.table::data.table(date=data.table::as.IDate(res[,1]),
+                                      time=data.table::as.ITime(res[,1]),
+                                      res[, -1])
     }
 
     return(res)

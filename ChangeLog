@@ -1,3 +1,67 @@
+2016-10-25  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (Version, Date): Release 0.3.5
+
+2016-10-24  Dirk Eddelbuettel  <edd@debian.org>
+
+	* README.md: Canonical URLs, switch to https
+	* vignettes/rblpapi-intro.Rmd (vignette): Ditto
+
+	* DESCRIPTION: Edits for current R CMD check standards
+
+2016-10-13  Dirk Eddelbuettel  <edd@debian.org>
+
+	* README.md: Correct license tag to say GPL-3 rather than GPL (>= 3)
+
+2016-10-03  Dirk Eddelbuettel  <edd@debian.org>
+
+	* R/getBars.R: Updated comment on returned timestamp
+	* man/getBars.Rd: Ditto
+
+	* inst/NEWS.Rd: Catching up with recent changes
+
+2016-09-30  Dirk Eddelbuettel  <edd@debian.org>
+
+	* R/getTicks.R: Expanded help text to mention condition code and
+	possibility of multiple returns
+	* man/getTicks.Rd: Ditto
+
+	* R/getTicks.R: (getMultipleTicks): Changed to support data.frame
+	and data.table support as type and code cannot be represented in
+	numeric matrices
+	* man/getMultipleTicks.Rd: Ditto
+
+2016-09-16  Dirk Eddelbuettel  <edd@debian.org>
+
+	* src/getTicks.cpp: Re-enable condition codes for data.frame and
+	data.table
+
+	* R/getTicks.R (getTicks): Support data.table return; set use of
+	condition code if data.table or data.frame returned
+	* man/getTicks.Rd: Updated
+
+	* inst/unitTests/runit.getTicks.R (test.getTicksAsDataTable):
+	added, renamed other test function from getTicksAsMatrix to
+	getTicksAsDataFrame as it returned a data.frame
+
+2016-09-15  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (Suggests): Added data.table()
+
+	* R/getTicks.R (getTicks): Corrected default return type to
+	data.frame, added support for new return type data.table
+
+2016-07-08  Dirk Eddelbuettel  <edd@debian.org>
+
+	* R/bsrch.R: Correct example to COMDTY:VESSEL
+	* man/bsrch.Rd: Ditto
+
+2016-06-06  John Laing  <john.laing@gmail.com>
+
+	* R/portfolio.R: New function getPortfolio to retrieve portfolio data
+	via bds()
+	* man/getPortfolio.R: Documentation for new function
+
 2016-05-08  Dirk Eddelbuettel  <edd@debian.org>
 
 	* DESCRIPTION (Version): Release 0.3.4

@@ -1,8 +1,23 @@
 \name{NEWS}
-\title{News for Package 'Rblpapi}
+\title{News for Package \pkg{Rblpapi}}
 \newcommand{\ghrepo}{\href{https://github.com/#1}{\pkg{#1}}}
 \newcommand{\ghpr}{\href{https://github.com/Rblp/Rblpapi/pull/#1}{##1}}
 \newcommand{\ghit}{\href{https://github.com/Rblp/Rblpapi/issues/#1}{##1}}
+
+\section{Changes in Rblpapi version 0.3.5 (2016-10-25)}{
+  \itemize{
+    \item Add new function \code{getPortfolio} to retrieve portfolio data
+    via \code{bds} (John in \ghpr{176}) 
+    \item Extend \code{getTicks()} to (optionally) return non-numeric
+    data as part of \code{data.frame} or \code{data.table} (Dirk in
+    \ghpr{200})
+    \item Similarly extend \code{getMultipleTicks} (Dirk in \ghpr{202})
+    \item Correct statement on timestamp for \code{getBars} (Closes
+    issue \ghit{192})
+    \item Minor edits to a few files in order to either please
+    \code{R(-devel) CMD check --as-cran}, or update documentation
+  }
+}
 
 \section{Changes in Rblpapi version 0.3.4 (2016-05-08)}{
   \itemize{
