@@ -4,6 +4,24 @@
 \newcommand{\ghpr}{\href{https://github.com/Rblp/Rblpapi/pull/#1}{##1}}
 \newcommand{\ghit}{\href{https://github.com/Rblp/Rblpapi/issues/#1}{##1}}
 
+\section{Changes in Rblpapi version 0.3.6 (2017-04-20)}{
+  \itemize{
+    \item \code{bdh} can now store in \code{double} preventing overflow
+    (Whit and John in \ghpr{205} closing \ghit{163})
+    \item \code{bdp} documentation has another ovveride example
+    \item A new function \code{lookupSecurity} can search for securities,
+    optionally filtered by yellow key (Kevin Jin and Dirk in \ghpr{216}
+    and \ghpr{217} closing \ghit{215})
+    \item Added file \code{init.c} with calls to \code{R_registerRoutines()}
+    \code{and R_useDynamicSymbols()}; also use \code{.registration=TRUE}
+    in \code{useDynLib} in \code{NAMESPACE} (Dirk in \ghpr{220})
+    \item \code{getBars} and \code{getTicks} can now return
+    \code{data.table} objects (Dirk in \ghpr{221})
+    \item \code{bds} has improved internal protect logic via
+    \code{Rcpp::Shield} (Dirk in \ghpr{222})
+  }
+}
+
 \section{Changes in Rblpapi version 0.3.5 (2016-10-25)}{
   \itemize{
     \item Add new function \code{getPortfolio} to retrieve portfolio data
@@ -16,6 +34,8 @@
     issue \ghit{192})
     \item Minor edits to a few files in order to either please
     \code{R(-devel) CMD check --as-cran}, or update documentation
+    \item Adding registration of routines are R 3.4.0 now desires.
+    \item Optional export as \code{data.table} is now more standardized.
   }
 }
 

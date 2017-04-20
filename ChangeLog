@@ -1,3 +1,72 @@
+2017-04-20  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (Version, Date): Release 0.3.6
+
+2017-04-08  Dirk Eddelbuettel  <edd@debian.org>
+
+	* src/finalizers.h (createExternalPointer): Use Shield<>
+
+	* src/bds.cpp (allocateDataFrameColumn): Create directly from Rcpp vectors
+	* src/blpapi_utils.cpp (allocateDataFrameColumn): Ditto
+
+2017-04-07  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (Version, Date): Roll minor version
+	* src/bds.cpp (allocateDataFrameColumn): Use Rcpp::Shield<>
+	(buildDataFrame): No need to UNPROTECT
+
+2017-03-02  Dirk Eddelbuettel  <edd@debian.org>
+
+	* R/converters.R (asDataTable): New (unexported) helper function
+	* R/getBars.R (getBars): Use asDataTable()
+	* R/getTicks.R (getBars): Ditto
+ 	* inst/unitTests/runit.getTicks.R (test.getTicksAsDataTable): Adjusted
+
+2017-02-27  Dirk Eddelbuettel  <edd@debian.org>
+
+	* NAMESPACE (useDynLib): Add .registration=TRUE; some other edits
+	* src/init.c: Added 'R_registerRoutines()' & 'R_useDynamicSymbols()'
+
+2017-02-12  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (Version, Date): Roll minor version
+
+	* R/lookup.R (lookupSecurity): Renamed to lookupSecurity(), tweaks
+	to help page and argument handling
+	* man/lookupSecurity.Rd: Also renamed
+
+2017-02-12  Kevin Jin  <goldstar.kevin@gmail.com>
+
+	* R/lookup.R (lookup): New function to look up securities,
+	possibly filtered by yellow key and language (PR #216)
+	* man/lookup.Rd: Documentation
+
+2017-01-03  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (URL, BugReports): Add URLs
+
+2016-12-14  Dirk Eddelbuettel  <edd@debian.org>
+
+	* README.md: Mention ghrr drat in Installation section
+
+2016-12-13  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (Version, Date):  Rolled to minor version 0.3.5.1
+
+2016-12-08  Dirk Eddelbuettel  <edd@debian.org>
+
+	* R/bdp.R: Another overrides example (by Morgan on StackOverflow)
+	* man/bdp.Rd: Ditto
+
+2016-11-18  John Laing  <john.laing@gmail.com>
+
+	* R/bdh.R: Add option to use double for int32 and int64 field types in bdh
+	* R/RcppExports.R: Ditto
+	* man/bdh.Rd: Ditto
+	* src/RcppExports.cpp: Ditto
+	* src/bdh.cpp: Ditto
+	* inst/unitTests/runit.bdh.R: Ditto
+
 2016-10-25  Dirk Eddelbuettel  <edd@debian.org>
 
 	* DESCRIPTION (Version, Date): Release 0.3.5
