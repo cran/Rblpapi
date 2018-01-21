@@ -4,6 +4,21 @@
 \newcommand{\ghpr}{\href{https://github.com/Rblp/Rblpapi/pull/#1}{##1}}
 \newcommand{\ghit}{\href{https://github.com/Rblp/Rblpapi/issues/#1}{##1}}
 
+\section{Changes in Rblpapi version 0.3.7 (2018-01-20)}{
+  \itemize{
+    \item The 140 day limit for intra-day data histories is now
+    mentioned in the \code{getTicks} help (Dirk in \ghpr{226} addressing
+    \ghit{215} and \ghit{225}).
+    \item The Travis CI script was updated to use \code{run.sh} (Dirk in \ghpr{226}).
+    \item The \code{install_name_tool} invocation under macOS was
+    corrected (@spennihana in \ghit{232})
+    \item The \code{blpAuthenticate} help page has additional examples
+    (@randomee in \ghpr{252}).
+    \item The \code{blpAuthenticate} code was updated and improved (Whit
+    in \ghpr{258} addressing \ghpr{257})
+  }
+}
+
 \section{Changes in Rblpapi version 0.3.6 (2017-04-20)}{
   \itemize{
     \item \code{bdh} can now store in \code{double} preventing overflow
@@ -13,7 +28,7 @@
     optionally filtered by yellow key (Kevin Jin and Dirk in \ghpr{216}
     and \ghpr{217} closing \ghit{215})
     \item Added file \code{init.c} with calls to \code{R_registerRoutines()}
-    \code{and R_useDynamicSymbols()}; also use \code{.registration=TRUE}
+    and \code{R_useDynamicSymbols()}; also use \code{.registration=TRUE}
     in \code{useDynLib} in \code{NAMESPACE} (Dirk in \ghpr{220})
     \item \code{getBars} and \code{getTicks} can now return
     \code{data.table} objects (Dirk in \ghpr{221})
