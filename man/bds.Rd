@@ -5,7 +5,7 @@
 \title{Run 'Bloomberg Data Set' Queries}
 \usage{
 bds(security, field, options = NULL, overrides = NULL, verbose = FALSE,
-  identity = NULL, con = defaultConnection())
+  identity = defaultAuthentication(), con = defaultConnection())
 }
 \arguments{
 \item{security}{A character value with a single security symbol in
@@ -24,18 +24,16 @@ being set) as well as a value.}
 \item{verbose}{A boolean indicating whether verbose operation is
 desired, defaults to \sQuote{FALSE}}
 
-\item{identity}{An optional identity object.}
+\item{identity}{An optional identity object as created by a
+\code{blpAuthenticate} call, and retrived via the internal function
+\code{defaultAuthentication}.}
 
 \item{con}{A connection object as created by a \code{blpConnect}
 call, and retrieved via the internal function
 \code{defaultConnection}.}
 }
 \value{
-A list with as many entries as there are entries in
-\code{securities}; each list contains a data.frame with one row
-per observations and as many columns as entries in
-\code{fields}. If the list is of length one, it is collapsed into
-a single data frame.
+A data frame object with the requested data set.
 }
 \description{
 This function uses the Bloomberg API to retrieve 'bds' (Bloomberg

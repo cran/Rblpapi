@@ -1,7 +1,13 @@
 
-## Rblpapi [![Build Status](https://travis-ci.org/Rblp/Rblpapi.svg)](https://travis-ci.org/Rblp/Rblpapi) [![Package-License](http://img.shields.io/badge/license-GPL--3-brightgreen.svg?style=flat)](http://www.gnu.org/licenses/gpl-3.0.html) [![LibraryLicense](https://img.shields.io/badge/license-License.txt-yellow.svg?style=flat)](https://raw.githubusercontent.com/Rblp/Rblpapi/master/inst/License.txt) [![CRAN](http://www.r-pkg.org/badges/version/Rblpapi)](https://cran.r-project.org/package=Rblpapi) [![Downloads](http://cranlogs.r-pkg.org/badges/Rblpapi?color=brightgreen)](http://www.r-pkg.org/pkg/Rblpapi)
+## Rblpapi: R Access to Bloomberg API
 
-R Access to Bloomberg API
+[![Build Status](https://travis-ci.org/Rblp/Rblpapi.svg)](https://travis-ci.org/Rblp/Rblpapi) 
+[![Package-License](http://img.shields.io/badge/license-GPL--3-brightgreen.svg?style=flat)](http://www.gnu.org/licenses/gpl-3.0.html) 
+[![LibraryLicense](https://img.shields.io/badge/license-License.txt-yellow.svg?style=flat)](https://raw.githubusercontent.com/Rblp/Rblpapi/master/inst/License.txt) 
+[![CRAN](http://www.r-pkg.org/badges/version/Rblpapi)](https://cran.r-project.org/package=Rblpapi) 
+[![Dependencies](https://tinyverse.netlify.com/badge/Rblpapi)](https://cran.r-project.org/package=Rblpapi) 
+[![Downloads](http://cranlogs.r-pkg.org/badges/Rblpapi?color=brightgreen)](https://www.r-pkg.org:443/pkg/Rblpapi)
+[![Last Commit](https://img.shields.io/github/last-commit/Rblp/Rblpapi)](https://github.com/Rblp/Rblpapi)
 
 ### Background
 
@@ -31,7 +37,7 @@ spx_ndx <- bdh(securities = c("SPX Index","NDX Index"),
                start.date = as.Date("2013-03-01"), 
                include.non.trading.days = TRUE)
 
-monthlyOptions <- structure(c("ACTUAL", "MONTHLY"),
+monthly.options <- structure(c("ACTUAL", "MONTHLY"),
                             names = c("periodicityAdjustment",
                                       "periodicitySelection"))
 spx_ndx_monthly <- bdh(securities = c("SPX Index","NDX Index"), 
@@ -61,7 +67,7 @@ install.packages("Rblpapi")
 ```
 
 Interim (source or binary) releases _may_ be also be made available through the
-[ghrr drat](http://ghrr.github.io/drat) repository as well and can be accessed via
+[ghrr drat](https://ghrr.github.io/drat/) repository as well and can be accessed via
 
 ```r
 install.packages("drat")       # easier repo access + creation

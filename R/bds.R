@@ -33,15 +33,13 @@
 ##' being set) as well as a value.
 ##' @param verbose A boolean indicating whether verbose operation is
 ##' desired, defaults to \sQuote{FALSE}
-##' @param identity An optional identity object.
+##' @param identity An optional identity object as created by a
+##' \code{blpAuthenticate} call, and retrived via the internal function
+##' \code{defaultAuthentication}.
 ##' @param con A connection object as created by a \code{blpConnect}
 ##' call, and retrieved via the internal function
 ##' \code{defaultConnection}.
-##' @return A list with as many entries as there are entries in
-##' \code{securities}; each list contains a data.frame with one row
-##' per observations and as many columns as entries in
-##' \code{fields}. If the list is of length one, it is collapsed into
-##' a single data frame.
+##' @return A data frame object with the requested data set.
 ##' @author Whit Armstrong and Dirk Eddelbuettel
 ##' @examples
 ##' \dontrun{
@@ -53,15 +51,11 @@
 ##' }
 bds <- function(security, field, options=NULL,
                 overrides=NULL, verbose=FALSE,
-                identity=NULL, con=defaultConnection()) {
+                identity=defaultAuthentication(), con=defaultConnection()) {
     if (length(security) != 1L)
         stop("more than one security submitted.", call.=FALSE)
     if (length(field) != 1L)
         stop("more than one field submitted.", call.=FALSE)
-    res <- bds_Impl(con, security, field, options, overrides, verbose, identity)
-    if (typeof(res)=="list" && length(res)==1) {
-        res <- res[[1]]
-    }
-    res
+    bds_Impl(con, security, field, options, overrides, verbose, identity)
 }
 

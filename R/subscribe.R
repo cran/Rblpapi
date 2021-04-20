@@ -27,7 +27,7 @@
 ##'
 ##' Full detials of the subscription string can be found in the header
 ##' file
-##' \href{http://bloomberg.github.io/blpapi-docs/cpp/3.8/blpapi__subscriptionlist_8h.html}{blpapi_subscriptionlist.h}.
+##' \href{https://bloomberg.github.io/blpapi-docs/cpp/3.8/blpapi__subscriptionlist_8h.html}{blpapi_subscriptionlist.h}.
 ##' 
 ##' @param securities A character vector with security symbols in
 ##' Bloomberg notation.
@@ -36,12 +36,14 @@
 ##' @param options An optional named character vector with option
 ##' values. Each field must have both a name (designating the option
 ##' being set) as well as a value.
-##' @param identity An optional identity object.
+##' @param identity An optional identity object as created by a
+##' \code{blpAuthenticate} call, and retrived via the internal function
+##' \code{defaultAuthentication}.
 ##' @param con A connection object as created by a \code{blpConnect}
 ##' call, and retrieved via the internal function
 ##' \code{defaultConnection}.
 ##' @return This function always returns NULL.
-##' @references \url{http://bloomberg.github.io/blpapi-docs/cpp/3.8}
+##' @references \url{https://bloomberg.github.io/blpapi-docs/cpp/3.8/}
 ##' @author Whit Armstrong
 ##' @examples
 ##' \dontrun{
@@ -49,7 +51,7 @@
 ##'             fields=c("LAST_PRICE","BID","ASK"),
 ##'             fun=function(x) print(str(x$data)))
 ##' }
-subscribe <- function(securities, fields, fun, options=NULL, identity=NULL, con=defaultConnection()) {
+subscribe <- function(securities, fields, fun, options=NULL, identity=defaultAuthentication(), con=defaultConnection()) {
     if (any(duplicated(securities))) stop("Duplicated securities submitted.", call.=FALSE)
     subscribe_Impl(con, securities, fields, fun, options, identity)
 }

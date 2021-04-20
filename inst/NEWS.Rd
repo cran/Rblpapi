@@ -4,17 +4,32 @@
 \newcommand{\ghpr}{\href{https://github.com/Rblp/Rblpapi/pull/#1}{##1}}
 \newcommand{\ghit}{\href{https://github.com/Rblp/Rblpapi/issues/#1}{##1}}
 
+\section{Changes in Rblpapi version 0.3.11 (2021-04-20)}{
+  \itemize{
+    \item Support blpAutoAuthenticate and B-PIPE access, refactor and
+    generalise authentication (James Bell in \ghpr{285})
+    \item Deprecate \code{excludeterm} (John in \ghpr{306})
+    \item Correct example in README.md (Maxime Legrand in \ghpr{314})
+    \item Correct \code{bds} man page (and code) (Michael Kerber, and
+    John, in \ghpr{320})
+    \item Add GitHub Actions continuous integration (Dirk in \ghpr{323})
+    \item Remove bashisms detected by R CMD check (Dirk \ghpr{324})
+    \item Switch vignette to minidown (Dirk in \ghpr{331})
+    \item Switch unit tests framework to tinytest (Dirk in \ghpr{332})
+  }
+}
+
 \section{Changes in Rblpapi version 0.3.10 (2019-04-02)}{
   \itemize{
     \item The \code{start.date} format for \code{bdh} now allows character
-    values with relative date expressions (John in \ghpr{267}) fixing
+    values with relative date expressions (John in \ghpr{267} fixing
     \ghit{266}). 
     \item Relative date values are allowed in return (John in \ghpr{269}
     fixing \ghit{268}).
     \item The \code{Rcpp::DateVector} class is used instead of a local
     date vector class (John in \ghpr{273}).
     \item The file \code{src/init.c} is now redundant and removed as
-    updated registration is in \code{src/RcppExports.cpp} (Davis Vaugh
+    updated registration is in \code{src/RcppExports.cpp} (Davis Vaughan
     in \ghpr{275} fixing \ghit{274}).
     \item Returned strings are now marked as UTF-8 encoded (Xianying Tan in
       \ghpr{278})
