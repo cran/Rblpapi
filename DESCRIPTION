@@ -1,13 +1,12 @@
 Package: Rblpapi
 Title: R Interface to 'Bloomberg'
-Version: 0.3.11
-Date: 2021-04-20
+Version: 0.3.12
+Date: 2021-12-07
 Maintainer: Dirk Eddelbuettel <edd@debian.org>
 Author: Whit Armstrong, Dirk Eddelbuettel and John Laing
 Imports: Rcpp (>= 0.11.0), utils
-Suggests: fts, xts, zoo, data.table, knitr, rmarkdown, minidown,
-        tinytest
-VignetteBuilder: knitr
+Suggests: fts, xts, zoo, data.table, simplermarkdown, tinytest
+VignetteBuilder: simplermarkdown
 LazyLoad: yes
 StagedInstall: no
 LinkingTo: Rcpp, BH
@@ -26,6 +25,6 @@ BugReports: https://github.com/Rblp/Rblpapi/issues
 License: file LICENSE
 RoxygenNote: 6.0.1
 NeedsCompilation: yes
-Packaged: 2021-04-20 16:54:42 UTC; edd
+Packaged: 2021-12-07 13:26:50 UTC; edd
 Repository: CRAN
-Date/Publication: 2021-04-20 23:10:02 UTC
+Date/Publication: 2021-12-07 14:00:05 UTC
