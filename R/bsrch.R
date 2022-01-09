@@ -1,6 +1,5 @@
 
-##
-##  Copyright (C) 2015 - 2016  Whit Armstrong and Dirk Eddelbuettel and John Laing
+##  Copyright (C) 2015 - 2021  Whit Armstrong and Dirk Eddelbuettel and John Laing
 ##
 ##  This file is part of Rblpapi
 ##
@@ -35,10 +34,12 @@
 ##' \code{defaultConnection}.
 ##' @return A data frame object with the requested SRCH data.
 ##' @author Morgan Williams and Dirk Eddelbuettel
+##' @note There are two main domains used for bsrch. The COMDTY domain
+##' requires additional parameters and is not supported. The FI domain
+##' works on user-defined searches accessed via SRCH.
 ##' @examples
 ##' \dontrun{
-##' head(bsrch("COMDTY:NGFLOW"), 20)
-##' head(bsrch("COMDTY:VESSEL"), 20)
+##' head(bsrch("FI:YOURSRCH"), 20)
 ##' }
 bsrch <- function(domain,
                   limit="",

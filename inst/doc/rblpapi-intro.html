@@ -17,6 +17,7 @@
     pre > code.sourceCode { white-space: pre; position: relative; }
     pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
     pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
     code.sourceCode > span { color: inherit; text-decoration: inherit; }
     div.sourceCode { margin: 1em 0; }
     pre.sourceCode { margin: 0; }
@@ -76,6 +77,7 @@
     code span.va { color: #19177c; } /* Variable */
     code span.vs { color: #4070a0; } /* VerbatimString */
     code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <style type="text/css">
 body {
@@ -154,6 +156,9 @@ background-color: unset;
 color: unset;
 }
 </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <header id="title-block-header">
@@ -173,61 +178,61 @@ color: unset;
 <p>The next few section illustrate key functions within the package. All functions also have proper help pages for fuller details.</p>
 <h3 id="package-load">Package Load</h3>
 <p>Use</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">library</span>(Rblpapi)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Rblpapi)</span></code></pre></div>
 <p>to load the package. You can also set options which will automatically connect at package load; see the next section.</p>
 <h3 id="connecting">Connecting</h3>
 <p>Use</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">blpConnect</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">blpConnect</span>()</span></code></pre></div>
 <p>which will connect to the Bloomberg backend. Default values for the IP address (127.0.0.1) and port (8194) are used and can be overridden both as function arguments and via global options <code>blpHost</code> and <code>blpPort</code>. Moreover, if option <code>blpAutoConnect</code> is set to <code>TRUE</code>, this connection is done at package load.</p>
 <p>The <code>appName</code> argument is optional and is for Application-Name authentication (via B-PIPE or SAPI, see <code>blpAuthenticate()</code>).</p>
 <p>The resulting connection object is stored in a per-package environment providing a default value. If needed it can be overridden in each accessor function.</p>
 <p>As the connection object is being held onto, the <code>blpDisconnect()</code> function is implemented as an empty function without side-effects. The internal function <code>defaultConnection()</code> returns the default connection object.</p>
 <p>Default arguments and auto-connect can be set via <code>options()</code></p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">options</span>(<span class="st">&quot;blpAutoConnect&quot;</span> =<span class="st"> </span><span class="ot">TRUE</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a><span class="kw">options</span>(<span class="st">&quot;blpHost&quot;</span> =<span class="st"> &quot;x.x.x.x&quot;</span>)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a><span class="kw">options</span>(<span class="st">&quot;blpPort&quot;</span> =<span class="st"> </span><span class="dv">8194</span>)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a><span class="kw">options</span>(<span class="st">&quot;blpAppName&quot;</span> =<span class="st"> &quot;yyy&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="st">&quot;blpAutoConnect&quot;</span> <span class="ot">=</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="st">&quot;blpHost&quot;</span> <span class="ot">=</span> <span class="st">&quot;x.x.x.x&quot;</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="st">&quot;blpPort&quot;</span> <span class="ot">=</span> <span class="dv">8194</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="st">&quot;blpAppName&quot;</span> <span class="ot">=</span> <span class="st">&quot;yyy&quot;</span>)</span></code></pre></div>
 <p>Optionally use</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="kw">blpAuthenticate</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">blpAuthenticate</span>()</span></code></pre></div>
 <p><code>blpAuthenticate()</code> is usually needed for SAPI &amp; B-PIPE sessions. DAPI (Desktop) sessions do not usually require calling <code>blpAuthenticate()</code>, and will function with a default NULL <code>identity</code> object.</p>
 <p><code>blpAuthenticate()</code> connects to SAPI/B-PIPE server, and authenticates via UUID/login-location or Application-Name. It can set a default identity object for future calls (<code>bdp()</code>, <code>bds()</code>, etc). Or it can return an identity object to explicitly pass to future calls.</p>
 <p>Additionally, if <code>blpAutoAuthenticate</code> is true, <code>blpAuthenticate()</code> will be called at package load, storing a default identity object. The internal function <code>defaultAuthentication()</code> returns the default identity object.</p>
 <p>If needed, the default identity object can be overridden in each accessor function.</p>
 <p>Default arguments and auto-authentication can be set via <code>options()</code></p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="kw">options</span>(<span class="st">&quot;blpAutoAuthenticate&quot;</span> =<span class="st"> </span><span class="ot">TRUE</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a><span class="kw">options</span>(<span class="st">&quot;blpUUID&quot;</span> =<span class="st"> &quot;xxx&quot;</span>)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a><span class="kw">options</span>(<span class="st">&quot;blpLoginHostname&quot;</span> =<span class="st"> &quot;yyy&quot;</span>)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a><span class="kw">options</span>(<span class="st">&quot;blpLoginIP&quot;</span> =<span class="st"> &quot;z.z.z.z&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="st">&quot;blpAutoAuthenticate&quot;</span> <span class="ot">=</span> <span class="cn">TRUE</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="st">&quot;blpUUID&quot;</span> <span class="ot">=</span> <span class="st">&quot;xxx&quot;</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="st">&quot;blpLoginHostname&quot;</span> <span class="ot">=</span> <span class="st">&quot;yyy&quot;</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="st">&quot;blpLoginIP&quot;</span> <span class="ot">=</span> <span class="st">&quot;z.z.z.z&quot;</span>)</span></code></pre></div>
 <p>For application-id authentication, first use <code>blpConnect()</code> with an <code>appName</code> argument. Then call <code>blpAuthenticate()</code> with no arguments.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="kw">blpConnect</span>( ... , <span class="dt">appName =</span> <span class="st">&quot;appName&quot;</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a><span class="kw">blpAuthenticate</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">blpConnect</span>( ... , <span class="at">appName =</span> <span class="st">&quot;appName&quot;</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">blpAuthenticate</span>()</span></code></pre></div>
 <p>For UUID authentication, connect with <code>blpConnect()</code>, then <code>blpAuthenticate()</code> with the UUID and last hostname/IP the UUID logged in from. Usually this is the IP of your Bloomberg Terminal. For your UUID, <code>IAM &lt;GO&gt;</code> in Bloomberg Terminal. Note, if you supply both IP and host arguments, the IP will be used, and the host ignored.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="kw">blpConnect</span>( ... )</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a><span class="kw">blpAuthenticate</span>( <span class="dt">uuid=</span><span class="st">&quot;UUID&quot;</span>, <span class="dt">ip.address=</span><span class="st">&quot;x.x.x.x&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">blpConnect</span>( ... )</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">blpAuthenticate</span>( <span class="at">uuid=</span><span class="st">&quot;UUID&quot;</span>, <span class="at">ip.address=</span><span class="st">&quot;x.x.x.x&quot;</span>)</span></code></pre></div>
 <h3 id="bdp-bloomberg-data-point">bdp: Bloomberg Data Point</h3>
 <p>Current (or most recent) values of market-related instruments can be accessed via the <code>bdp()</code> function:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="kw">bdp</span>(<span class="kw">c</span>(<span class="st">&quot;ESA Index&quot;</span>, <span class="st">&quot;SPY US Equity&quot;</span>), <span class="kw">c</span>(<span class="st">&quot;PX_LAST&quot;</span>, <span class="st">&quot;VOLUME&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bdp</span>(<span class="fu">c</span>(<span class="st">&quot;ESA Index&quot;</span>, <span class="st">&quot;SPY US Equity&quot;</span>), <span class="fu">c</span>(<span class="st">&quot;PX_LAST&quot;</span>, <span class="st">&quot;VOLUME&quot;</span>))</span></code></pre></div>
 <h3 id="bds-bloomberg-data-set">bds: Bloomberg Data Set</h3>
 <p>The <code>bds()</code> function can retrieve data of a more static nature:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="kw">bds</span>(<span class="st">&quot;GOOG US Equity&quot;</span>, <span class="st">&quot;TOP_20_HOLDERS_PUBLIC_FILINGS&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bds</span>(<span class="st">&quot;GOOG US Equity&quot;</span>, <span class="st">&quot;TOP_20_HOLDERS_PUBLIC_FILINGS&quot;</span>)</span></code></pre></div>
 <h3 id="bdh-bloomberg-data-history">bdh: Bloomberg Data History</h3>
 <p>Historical data (at a daily granularity) can be retrieved with <code>bdh()</code>:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="kw">bdh</span>(<span class="st">&quot;SPY US Equity&quot;</span>, <span class="kw">c</span>(<span class="st">&quot;PX_LAST&quot;</span>, <span class="st">&quot;VOLUME&quot;</span>), <span class="dt">start.date=</span><span class="kw">Sys.Date</span>()<span class="op">-</span><span class="dv">31</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bdh</span>(<span class="st">&quot;SPY US Equity&quot;</span>, <span class="fu">c</span>(<span class="st">&quot;PX_LAST&quot;</span>, <span class="st">&quot;VOLUME&quot;</span>), <span class="at">start.date=</span><span class="fu">Sys.Date</span>()<span class="sc">-</span><span class="dv">31</span>)</span></code></pre></div>
 <h3 id="getbars-ohlcv-aggregates">getBars: OHLCV Aggregates</h3>
 <p>The <code>getBars()</code> function retrieves aggregated Open / High / Low / Close / Volume data. For example, in</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="kw">getBars</span>(<span class="st">&quot;ES1 Index&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">getBars</span>(<span class="st">&quot;ES1 Index&quot;</span>)</span></code></pre></div>
 <p>the default values of six hourly bars for the lead ES future.</p>
 <h3 id="getticks-transactional-tick-data">getTicks: Transactional Tick Data</h3>
 <p>The <code>getTicks()</code> function retrieves tickdata, albeit with timestamps at a minute granularity. For example, the call</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a><span class="kw">getTicks</span>(<span class="st">&quot;ES1 Index&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">getTicks</span>(<span class="st">&quot;ES1 Index&quot;</span>)</span></code></pre></div>
 <p>retrieves all ticks for the given security over the last hour.</p>
 <h3 id="fieldsearch-query-for-fields">fieldSearch: Query For Fields</h3>
 <p>The <code>fieldSearch()</code> helper function can search for available fields which can be used with the <code>bdp()</code>, <code>bdh()</code> or <code>bds()</code> functions. For example,</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a>res &lt;-<span class="st"> </span><span class="kw">fieldSearch</span>(<span class="st">&quot;vwap&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">fieldSearch</span>(<span class="st">&quot;vwap&quot;</span>)</span></code></pre></div>
 <p>search for fields describing volume-weighted average price fields</p>
 <h3 id="beqs-bloomberg-eqs-queries">beqs: Bloomberg EQS Queries</h3>
 <p>The <code>beqs()</code> function (which was contribued by Rademeyer Vermaak) can access EQS functionality:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a><span class="kw">beqs</span>(<span class="st">&quot;Global Oil Companies YTD Return&quot;</span>,<span class="st">&quot;GLOBAL&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">beqs</span>(<span class="st">&quot;Global Oil Companies YTD Return&quot;</span>,<span class="st">&quot;GLOBAL&quot;</span>)</span></code></pre></div>
 <h2 id="acknowledgements">Acknowledgements</h2>
 <p>Most valuable contributions from both <a href="https://github.com/jrowen">Jonathan Owen</a> (who kick-started builds on Windows when we considered these to be impossible) and <a href="https://jeroenooms.github.io/">Jeroen Ooms</a> (who took care of builds on OS X) are gratefully acknowledged.</p>
 <h2 id="legal">Legal</h2>
