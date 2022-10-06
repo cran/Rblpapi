@@ -3,7 +3,7 @@
 ##
 ##  configure -- Unix build preparation system
 ##
-##  Copyright (C) 2015 - 2021  Dirk Eddelbuettel and Jeroen Ooms.
+##  Copyright (C) 2015 - 2022  Dirk Eddelbuettel and Jeroen Ooms.
 ##
 ##  This file is part of Rblpapi
 ##
@@ -41,15 +41,14 @@ else
 fi
 
 ## Populate Makevars
-rpath=$(${R_HOME}/bin/Rscript -e 'cat(file.path(.libPaths()[1], "Rblpapi", "blp"))')
 arch=$(uname -m)
 if [ "${arch}" = "x86_64" ]; then
     echo "Setting up compilation for a ${platform} 64-bit system"
-    sed -e"s/@config@/blpapi3_64/" -e"s|@rpath@|"${rpath}"|" src/Makevars.in > src/Makevars
+    sed -e"s/@config@/blpapi3_64/" src/Makevars.in > src/Makevars
     flavour="64"
 elif [ "${arch}" = "i686" ]; then
     echo "Setting up compilation for a ${platform} 32-bit system"
-    sed -e"s/@config@/blpapi3_32/" -e"s|@rpath@|"${rpath}"|" src/Makevars.in > src/Makevars
+    sed -e"s/@config@/blpapi3_32/" src/Makevars.in > src/Makevars
     flavour="32"
 else
     echo "Unknown architecture: ${arch}. Exiting."
@@ -70,23 +69,32 @@ download() {
     fi
 }
 
-## Get and install header files
+## default file names, can override with say 'blpHeaders="/opt/blp/blpHeaders_1.2.3.tar.gz"'
+## respects enviroment variable so 'blpHeaders="/opt/blp/blpHeaders_1.2.3.tar.gz" ./configure' works
+: ${blpHeaders="blpHeaders.tar.gz"}
+: ${blpLibrary="blpLibrary.tar.gz"}
+
+## Check for header files and download if needed
 cwd=$(pwd)
 mkdir -p blp/${platform}
 cd blp/${platform}
-if [ ! -f blpHeaders.tar.gz ]; then
+if [ ! -f ${blpHeaders} ]; then
     download https://github.com/Rblp/blp/raw/master/headers/${platform}/blpHeaders.tar.gz
-    tar xfz blpHeaders.tar.gz -C ../../inst
+else
+    echo "** using ${blpHeaders}"
 fi
+tar xfz ${blpHeaders} -C ../../inst
 cd ${cwd}
 
 ## Get and install precompiled shared library
 mkdir -p inst/blp
 cd blp/${platform}
-if [ ! -f blpLibrary.tar.gz ]; then
+if [ ! -f ${blpLibrary} ]; then
     download https://github.com/Rblp/blp/raw/master/${platform}${flavour}/blpLibrary.tar.gz
-    tar xfz blpLibrary.tar.gz -C ../../inst/blp/ libblpapi3_${flavour}.so
+else
+    echo "** using ${blpLibrary}"
 fi
+tar xfz ${blpLibrary} -C ../../inst/blp/ libblpapi3_${flavour}.so
 cd ${cwd}
 
 exit 0

@@ -1,3 +1,50 @@
+2022-10-05  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (Version, Date): New release 0.3.14
+
+	* R/bdh.R (bdh): Replace a class() test with inherits()
+
+2022-10-04  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (Suggests): No longer suggest 'fts'
+ 	* R/bdh.R (bdh): Remove support for 'fts'
+	* R/getBars.R (getBars): Idem
+	* R/getTicks.R (getTicks): Idem
+	* inst/tinytest/test_bdh.R: Idem
+	* man/bdh.Rd: Remove documentation entry for 'fts'
+	* man/getBars.Rd: Idem
+	* man/getTicks.Rd: Idem
+
+2022-10-04  Dirk Eddelbuettel  <edd@debian.org>
+
+	* src/Makevars.in: Set rpath to relative path for staged installation
+	* configure: No longer set rpath
+	* DESCRIPTION: No longer impose non-staged installation
+
+2022-08-27  Bob Harlow  <rharlow86@gmail.com>
+
+	* DESCRIPTION (Version, Date): Roll minor version
+
+	* R/blpAuthenticate.R: Add isAuthId and appName parameters to handle
+	the case where we want to authenticate with a B-PIPE app AND a
+	user associated with that app, in which case the uuid will
+	be interpreted as a bloomberg authId.
+
+	* src/authenticate.cpp: Handle new parameters at the C++ level
+
+	* man/blpAuthenticate.R: document new parameters
+
+	* DESCRIPTION: No longer Suggests: fts
+
+2022-02-21  Dirk Eddelbuettel  <edd@debian.org>
+
+        * DESCRIPTION (Version, Date): Roll minor version
+
+	* configure: Generalize to let blpHeaders and blpLibrary environment
+	variable provide a local archive, download as usual if unset
+
+	* DESCRIPTION (SystemRequirements): Minor edit
+
 2022-01-09  Dirk Eddelbuettel  <edd@debian.org>
 
 	* DESCRIPTION (Version, Date): New release 0.3.13
@@ -766,7 +813,3 @@
 
         * ChangeLog: Added, see git log for previous changes
         * NEWS.Rd: Added, see git log for previous changes
-
-
-
-
