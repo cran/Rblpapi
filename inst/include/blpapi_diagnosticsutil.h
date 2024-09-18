@@ -17,18 +17,45 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-// blpapi_diagnosticsutil.h                                           -*-C++-*-
+
+/** \file blpapi_diagnosticsutil.h */
+/** \defgroup blpapi_diagnosticsutil Component blpapi_diagnosticsutil
+\brief Provide api to access diagnostics information on the blpapi library
+\file blpapi_diagnosticsutil.h
+\brief Provide api to access diagnostics information on the blpapi library
+*/
+
 #ifndef INCLUDED_BLPAPI_DIAGNOSTICSUTIL
 #define INCLUDED_BLPAPI_DIAGNOSTICSUTIL
 
-//@PURPOSE: Provide api to access diagnostics information on the blpapi library
-//
-//@CLASSES:
-// blpapi::DiagnosticsUtil: collection of diagnostics information functions
-//
-//@DESCRIPTION: This component provide a collection of functions which give
-// access to various sets of diagnostics information on the 'blpapi' library.
-
+/** \addtogroup blpapi
+ * @{
+ */
+/** \addtogroup blpapi_diagnosticsutil
+ * @{
+ * <A NAME="purpose"></A>
+ * <A NAME="1"> \par Purpose: </A>
+ * Provide api to access diagnostics information on the blpapi library
+ * \par
+ * \par
+ * <A NAME="classes"></A>
+ * <A NAME="2"> \par Classes: </A>
+ * <table>
+ * <tr>
+ * <td>blpapi::DiagnosticsUtil</td>
+ * <td>collection of diagnostics information functions</td>
+ * </tr>
+ * </table>
+ * \par
+ * \par
+ * <A NAME="description"></A>
+ * <A NAME="3"> \par Description: </A>
+ *  This component provide a collection of functions which give
+ * access to various sets of diagnostics information on the <code>blpapi</code>
+ * library.
+ */
+/** @} */
+/** @} */
 
 #ifndef INCLUDED_BLPAPI_CALL
 #include <blpapi_call.h>
@@ -48,47 +75,47 @@ extern "C" {
 #endif
 
 BLPAPI_EXPORT
-int blpapi_DiagnosticsUtil_memoryInfo(char   *buffer,
-                                      size_t  bufferLength);
+int blpapi_DiagnosticsUtil_memoryInfo(char *buffer, size_t bufferLength);
 
 #ifdef __cplusplus
 }
 
+/** \addtogroup blpapi
+ * @{
+ */
+/** \addtogroup blpapi_diagnosticsutil
+ * @{
+ */
+
 namespace BloombergLP {
 namespace blpapi {
-                         // =====================
-                         // class DiagnosticsUtil
-                         // =====================
 
 class DiagnosticsUtil {
   public:
-    static int memoryInfo(char   *buffer,
-                          size_t  bufferLength);
-        // Load into the specified 'buffer' up to the specified 'bufferLength'
-        // characters of a null-terminated string describing the 'blpapi'
-        // library's memory usage; the format of the string is
-        // platform-specific.  On success, return the number of characters
-        // required to output the entire string, not including the null
-        // terminator; otherwise return a negative value.  Note that if the
-        // value returned from this function is greater than or equal to
-        // 'bufferLength' then the output is truncated and is *not*
-        // null-terminated.
+    static int memoryInfo(char *buffer, size_t bufferLength);
+    /*!<
+     * Load into the specified <code>buffer</code> up to the specified
+     * <code>bufferLength</code> characters of a null-terminated string
+     * describing the <code>blpapi</code> library's memory usage; the format of
+     * the string is platform-specific.  On success, return the number of
+     * characters required to output the entire string, not including the null
+     * terminator; otherwise return a negative value.  Note that if the value
+     * returned from this function is greater than or equal to
+     * <code>bufferLength</code> then the output is truncated and is
+     * <em>not</em> null-terminated.
+     */
 };
 
-
-                        // ---------------------
-                        // class DiagnosticsUtil
-                        // ---------------------
-
-inline
-int DiagnosticsUtil::memoryInfo(char   *buffer,
-                                size_t  bufferLength)
+inline int DiagnosticsUtil::memoryInfo(char *buffer, size_t bufferLength)
 {
     BLPAPI_CALL_DIAGNOSTICSUTIL_MEMORYINFO(buffer, bufferLength);
 }
 
 }
 }
+
+/** @} */
+/** @} */
 
 #endif
 

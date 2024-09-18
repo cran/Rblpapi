@@ -17,66 +17,95 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-// blpapi_streamproxy.h                                               -*-C++-*-
+
+/** \file blpapi_streamproxy.h */
+/** \defgroup blpapi_streamproxy Component blpapi_streamproxy
+\brief A signature for callback on print and default C++ implementation
+\file blpapi_streamproxy.h
+\brief A signature for callback on print and default C++ implementation
+*/
+
 #ifndef INCLUDED_BLPAPI_STREAMPROXY
 #define INCLUDED_BLPAPI_STREAMPROXY
 
-//@PURPOSE: A signature for callback on print and default C++ implementation
-//
-//@DESCRIPTION:
-// This file defines 'blpapi_StreamWriter_t' a function pointer type.
-// The user of the C API need to specify a callback of above type which will
-// be called on xxx_print(...) with the formatted data. For C++ API, a default
-// callback is specified which writes data to the stream specified in
-// xxx::print
+/** \addtogroup blpapi
+ * @{
+ */
+/** \addtogroup blpapi_streamproxy
+ * @{
+ * <A NAME="purpose"></A>
+ * <A NAME="1"> \par Purpose: </A>
+ * A signature for callback on print and default C++ implementation
+ * \par
+ * \par
+ * <A NAME="description"></A>
+ * <A NAME="2"> \par Description: </A>
+ *
+ * This file defines <code>blpapi_StreamWriter_t</code> a function pointer
+ * type. The user of the C API need to specify a callback of above type which
+ * will be called on xxx_print(...) with the formatted data. For C++ API, a
+ * default callback is specified which writes data to the stream specified in
+ * xxx::print
+ */
+/** @} */
+/** @} */
 
-typedef int(*blpapi_StreamWriter_t)(const char* data,
-                                    int length,
-                                    void *stream);
+typedef int (*blpapi_StreamWriter_t)(
+        const char *data, int length, void *stream);
 
 #ifdef __cplusplus
 
+#include <cassert>
 #include <ostream>
+
+/** \addtogroup blpapi
+ * @{
+ */
+/** \addtogroup blpapi_streamproxy
+ * @{
+ */
 
 namespace BloombergLP {
 namespace blpapi {
 
 inline int OstreamWriter(const char *data, int length, void *stream);
-    // DEPRECATED
-
-                             // ==================
-                             // struct StreamProxy
-                             // ==================
+/*!<
+ * \deprecated Use StreamProxyOstream::writeToStream instead.
+ */
 
 struct StreamProxyOstream {
 
-static int writeToStream(const char* data, int length, void *stream);
-    // Format, to the specified 'stream', which must be a pointer to a
-    // 'std::ostream', the specified 'length' bytes of the specified 'data'.
-
+    static int writeToStream(const char *data, int length, void *stream);
+    /*!<
+     * Format, to the specified <code>stream</code>, which must be a pointer to
+     * a <code>std::ostream</code>, the specified <code>length</code> bytes of
+     * the specified <code>data</code>.
+     */
 };
+
+/** @} */
+/** @} */
 
 //=============================================================================
 //                           INLINE FUNCTION DEFINITIONS
 //=============================================================================
 
-inline
-int StreamProxyOstream::writeToStream(const char *data,
-                                      int         length,
-                                      void       *stream)
+inline int StreamProxyOstream::writeToStream(
+        const char *data, int length, void *stream)
 {
-    reinterpret_cast<std::ostream*>(stream)->write(data, length);
+    assert(stream);
+
+    reinterpret_cast<std::ostream *>(stream)->write(data, length);
     return 0;
 }
 
-inline
-int OstreamWriter(const char *data, int length, void *stream)
+inline int OstreamWriter(const char *data, int length, void *stream)
 {
     return StreamProxyOstream::writeToStream(data, length, stream);
 }
 
-}  // close namespace blpapi
-}  // close namespace BloombergLP
+} // close namespace blpapi
+} // close namespace BloombergLP
 
 #endif // #ifdef __cplusplus
 #endif // #ifndef INCLUDED_BLPAPI_STREAMPROXY

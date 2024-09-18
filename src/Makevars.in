@@ -3,7 +3,7 @@
 ##  Makefile -- Unix build system
 ##
 ##  Copyright (C) 2015-present  Dirk Eddelbuettel and Jeroen Ooms
-##  Copyright (C) 2022          Tomas Kalibera and Dirk Eddelbuettel
+##  Copyright (C) 2022-present  Tomas Kalibera and Dirk Eddelbuettel
 ##
 ##  This file is part of Rblpapi
 ##
@@ -20,10 +20,6 @@
 ##  You should have received a copy of the GNU General Public License
 ##  along with Rblpapi.  If not, see <http://www.gnu.org/licenses/>.
 
-
-## use C++11
-CXX_STD      = CXX11
-
 ## filled in by configure
 BBG_LIB     = @config@
 BBG_RPATH   = '$$ORIGIN/../blp'
@@ -34,4 +30,4 @@ PKG_CPPFLAGS = -I../inst/include/ -I.
 PKG_LIBS     = -l$(BBG_LIB) -L../inst/blp -Wl,-rpath,$(BBG_RPATH)
 
 all: $(SHLIB)
-	@if command -v install_name_tool; then echo "fixing"; install_name_tool -change libblpapi3_64.so '@loader_path/../blp/libblpapi3_64.so' Rblpapi.so; fi
+	@if command -v install_name_tool; then echo "fixing"; install_name_tool -add_rpath @loader_path/../blp Rblpapi.so; fi

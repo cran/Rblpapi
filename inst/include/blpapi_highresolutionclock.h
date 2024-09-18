@@ -17,16 +17,43 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-// blpapi_clock.h                                                     -*-C++-*-
+
+/** \file blpapi_highresolutionclock.h */
+/** \defgroup blpapi_highresolutionclock Component blpapi_highresolutionclock
+\brief Provide a high resolution clock.
+\file blpapi_highresolutionclock.h
+\brief Provide a high resolution clock.
+*/
+
 #ifndef INCLUDED_BLPAPI_HIGHRESOLUTIONCLOCK
 #define INCLUDED_BLPAPI_HIGHRESOLUTIONCLOCK
-//@PURPOSE: Provide a high resolution clock.
-//
-//@CLASSES:
-// blpapi::HighResolutionClock: a high resolution clock
-//
-//@DESCRIPTION: This component provides a way to access the current time as a
-// 'blpapi::TimePoint' value.
+/** \addtogroup blpapi
+ * @{
+ */
+/** \addtogroup blpapi_highresolutionclock
+ * @{
+ * <A NAME="purpose"></A>
+ * <A NAME="1"> \par Purpose: </A>
+ * Provide a high resolution clock.
+ * \par
+ * \par
+ * <A NAME="classes"></A>
+ * <A NAME="2"> \par Classes: </A>
+ * <table>
+ * <tr>
+ * <td>blpapi::HighResolutionClock</td>
+ * <td>a high resolution clock</td>
+ * </tr>
+ * </table>
+ * \par
+ * \par
+ * <A NAME="description"></A>
+ * <A NAME="3"> \par Description: </A>
+ *  This component provides a way to access the current time as a
+ * <code>blpapi::TimePoint</code> value.
+ */
+/** @} */
+/** @} */
 
 #ifndef INCLUDED_BLPAPI_CALL
 #include <blpapi_call.h>
@@ -50,45 +77,60 @@ extern "C" {
 
 BLPAPI_EXPORT
 int blpapi_HighResolutionClock_now(blpapi_TimePoint_t *timePoint);
-    // Load the current time into the specified 'timePoint' and return zero, or
-    // leave timePoint unchanged and return a non-zero value.
+/*!<
+ * Load the current time into the specified <code>timePoint</code> and return
+ * zero, or leave timePoint unchanged and return a non-zero value.
+ */
 #ifdef __cplusplus
 }
 
+/** \addtogroup blpapi
+ * @{
+ */
+/** \addtogroup blpapi_highresolutionclock
+ * @{
+ */
+
 namespace BloombergLP {
 namespace blpapi {
-                          // ==========================
-                          // struct HighResolutionClock
-                          // ==========================
 
+/*!
+ * This utility struct provides a source for the current moment in time as a
+ * <code>blpapi::TimePoint</code> object. This is currently intended for use
+ * primarily in conjunction with the <code>blpapi::Message::timeReceived</code>
+ * interfaces, to allow measurement of the amount of time a message spends in
+ * the client event queue.
+ */
+/*!
+ * See \ref blpapi_highresolutionclock
+ */
 struct HighResolutionClock {
-    // This utility struct provides a source for the current moment in time as
-    // a 'blpapi::TimePoint' object. This is currently intended for use
-    // primarily in conjunction with the 'blpapi::Message::timeReceived'
-    // interfaces, to allow measurement of the amount of time a message spends
-    // in the client event queue.
 
     static TimePoint now();
-        // Return the current moment in time as a 'TimePoint' value.
+    /*!<
+     *     Return the current moment in time as a <code>TimePoint</code> value.
+     */
 };
+
+/** @} */
+/** @} */
 
 // ============================================================================
 //                      INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
 // ============================================================================
 
-                          // --------------------------
-                          // struct HighResolutionClock
-                          // --------------------------
-inline
-TimePoint HighResolutionClock::now()
+// --------------------------
+// struct HighResolutionClock
+// --------------------------
+inline TimePoint HighResolutionClock::now()
 {
     TimePoint tp;
     BLPAPI_CALL_HIGHRESOLUTIONCLOCK_NOW(&tp);
     return tp;
 }
 
-}  // close namespace blpapi
-}  // close namespace BloombergLP
+} // close namespace blpapi
+} // close namespace BloombergLP
 
 #endif // #ifdef __cplusplus
 #endif // #ifndef INCLUDED_BLPAPI_HIGHRESOLUTIONCLOCK

@@ -17,31 +17,50 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-// blpapi_versionmacros.h                                             -*-C++-*-
+
+/** \file blpapi_versionmacros.h */
+/** \defgroup blpapi_versionmacros Component blpapi_versionmacros
+\brief Provide preprocessor macros for BLPAPI library version information.
+\file blpapi_versionmacros.h
+\brief Provide preprocessor macros for BLPAPI library version information.
+*/
+
 #ifndef INCLUDED_BLPAPI_VERSIONMACROS
 #define INCLUDED_BLPAPI_VERSIONMACROS
 
-//@PURPOSE: Provide preprocessor macros for BLPAPI library version information.
-//
-//@DESCRIPTION: This file is not meant to be included directly; see
-// 'blpapi_versioninfo.h' for library version interfaces.
+/** \addtogroup blpapi
+ * @{
+ */
+/** \addtogroup blpapi_versionmacros
+ * @{
+ * <A NAME="purpose"></A>
+ * <A NAME="1"> \par Purpose: </A>
+ * Provide preprocessor macros for BLPAPI library version information.
+ * \par
+ * \par
+ * <A NAME="description"></A>
+ * <A NAME="2"> \par Description: </A>
+ *  This file is not meant to be included directly; see
+ * <code>blpapi_versioninfo.h</code> for library version interfaces.
+ */
+/** @} */
+/** @} */
 
 #define BLPAPI_VERSION_MAJOR 3
-#define BLPAPI_VERSION_MINOR 8
-#define BLPAPI_VERSION_PATCH 8
+#define BLPAPI_VERSION_MINOR 24
+#define BLPAPI_VERSION_PATCH 6
 #define BLPAPI_VERSION_BUILD 1
 
-#define BLPAPI_MAKE_VERSION(MAJOR, MINOR, PATCH) ((MAJOR) * 65536 + \
-                                                  (MINOR) * 256 + \
-                                                  (PATCH))
-    // Combine the specified 'MAJOR', 'MINOR', and 'PATCH' values to form
-    // a single integer that can be used for comparisons at compile time.
+#define BLPAPI_MAKE_VERSION(MAJOR, MINOR, PATCH)                              \
+    ((MAJOR) * 65536 + (MINOR) * 256 + (PATCH))
+// Combine the specified 'MAJOR', 'MINOR', and 'PATCH' values to form
+// a single integer that can be used for comparisons at compile time.
 
-#define BLPAPI_SDK_VERSION BLPAPI_MAKE_VERSION(BLPAPI_VERSION_MAJOR, \
-                                               BLPAPI_VERSION_MINOR, \
-                                               BLPAPI_VERSION_PATCH)
-    // Form a single integer representing the version of the BLPAPI headers
-    // that can be compared with values formed by 'BLPAPI_MAKE_VERSION' at
-    // compile time.
+#define BLPAPI_SDK_VERSION                                                    \
+    BLPAPI_MAKE_VERSION(                                                      \
+            BLPAPI_VERSION_MAJOR, BLPAPI_VERSION_MINOR, BLPAPI_VERSION_PATCH)
+// Form a single integer representing the version of the BLPAPI headers
+// that can be compared with values formed by 'BLPAPI_MAKE_VERSION' at
+// compile time.
 
 #endif // INCLUDED_BLPAPI_VERSIONMACROS

@@ -17,17 +17,44 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-// blpapi_topic.h                                                     -*-C++-*-
+
+/** \file blpapi_topic.h */
+/** \defgroup blpapi_topic Component blpapi_topic
+\brief Provide representation of a Topic
+\file blpapi_topic.h
+\brief Provide representation of a Topic
+*/
+
 #ifndef INCLUDED_BLPAPI_TOPIC
 #define INCLUDED_BLPAPI_TOPIC
 
-//@PURPOSE: Provide representation of a Topic
-//
-//@CLASSES:
-// blpapi::Topic: Represents a Topic
-//
-//@DESCRIPTION: This component provides a topic that is used for publishing
-// data on.
+/** \addtogroup blpapi
+ * @{
+ */
+/** \addtogroup blpapi_topic
+ * @{
+ * <A NAME="purpose"></A>
+ * <A NAME="1"> \par Purpose: </A>
+ * Provide representation of a Topic
+ * \par
+ * \par
+ * <A NAME="classes"></A>
+ * <A NAME="2"> \par Classes: </A>
+ * <table>
+ * <tr>
+ * <td>blpapi::Topic</td>
+ * <td>Represents a Topic</td>
+ * </tr>
+ * </table>
+ * \par
+ * \par
+ * <A NAME="description"></A>
+ * <A NAME="3"> \par Description: </A>
+ *  This component provides a topic that is used for publishing
+ * data on.
+ */
+/** @} */
+/** @} */
 
 #ifndef INCLUDED_BLPAPI_DEFS
 #include <blpapi_defs.h>
@@ -45,16 +72,16 @@ extern "C" {
 #endif
 
 BLPAPI_EXPORT
-blpapi_Topic_t* blpapi_Topic_create(blpapi_Topic_t* from);
+blpapi_Topic_t *blpapi_Topic_create(blpapi_Topic_t *from);
 
 BLPAPI_EXPORT
-void blpapi_Topic_destroy(blpapi_Topic_t* victim);
+void blpapi_Topic_destroy(blpapi_Topic_t *victim);
 
 BLPAPI_EXPORT
-int blpapi_Topic_compare(const blpapi_Topic_t* lhs, const blpapi_Topic_t* rhs);
+int blpapi_Topic_compare(const blpapi_Topic_t *lhs, const blpapi_Topic_t *rhs);
 
 BLPAPI_EXPORT
-blpapi_Service_t* blpapi_Topic_service(const blpapi_Topic_t *topic);
+blpapi_Service_t *blpapi_Topic_service(const blpapi_Topic_t *topic);
 
 BLPAPI_EXPORT
 int blpapi_Topic_isActive(const blpapi_Topic_t *topic);
@@ -62,58 +89,81 @@ int blpapi_Topic_isActive(const blpapi_Topic_t *topic);
 #ifdef __cplusplus
 }
 
+#include <utility>
+
+/** \addtogroup blpapi
+ * @{
+ */
+/** \addtogroup blpapi_topic
+ * @{
+ */
+
 namespace BloombergLP {
 namespace blpapi {
-                         // ===========
-                         // class Topic
-                         // ===========
 
+/*!
+ *     Used to identify the stream on which a message is published.
+ *
+ *     Topic objects are obtained from createTopic() on
+ *     ProviderSession. They are used when adding a message to an
+ *     Event for publishing using appendMessage() on EventFormatter.
+ */
+/*!
+ * See \ref blpapi_topic
+ */
 class Topic {
-    // Used to identify the stream on which a message is published.
-    //
-    // Topic objects are obtained from createTopic() on
-    // ProviderSession. They are used when adding a message to an
-    // Event for publishing using appendMessage() on EventFormatter.
 
     blpapi_Topic_t *d_handle;
 
   public:
-
     Topic();
-        // Create a Topic object. A Topic created from the default
-        // constructor is not a valid topic and must be assigned to
-        // from a valid topic before it can be used.
+    /*!<
+     *     Create a Topic object. A Topic created from the default
+     *     constructor is not a valid topic and must be assigned to
+     *     from a valid topic before it can be used.
+     */
 
-    Topic(blpapi_Topic_t* handle);
-        // Create a Topic object from a handle (main constructor)
+    explicit Topic(blpapi_Topic_t *handle);
+    /*!<
+     *     Create a Topic object from a handle (main constructor)
+     */
 
     Topic(const Topic& original);
-        // Create a copy of the specified 'original' Topic.
+    /*!<
+     *     Create a copy of the specified <code>original</code> Topic.
+     */
 
     ~Topic();
-        // Destroy this Topic object.
-
-    // MANIPULATORS
+    /*!<
+     *     Destroy this Topic object.
+     */
 
     Topic& operator=(const Topic& rhs);
 
-    // ACCESSORS
-
     bool isValid() const;
-        // Returns true if this Topic is valid and can be used to
-        // publish a message on.
+    /*!<
+     *     Returns true if this Topic is valid and can be used to
+     *     publish a message on.
+     */
 
     bool isActive() const;
-        // Returns true if this topic was elected by the platform to become
-        // the primary publisher.
+    /*!<
+     *     Returns true if this topic was elected by the platform to become
+     *     the primary publisher.
+     */
 
     Service service() const;
-        // Returns the service for which this topic was created.
+    /*!<
+     *     Returns the service for which this topic was created.
+     */
 
-    const blpapi_Topic_t* impl() const;
+    const blpapi_Topic_t *impl() const;
 
-    blpapi_Topic_t* impl();
+    blpapi_Topic_t *impl();
 };
+
+/** @} */
+/** @} */
 
 bool operator==(Topic const& lhs, Topic const& rhs);
 
@@ -125,93 +175,70 @@ bool operator<(Topic const& lhs, Topic const& rhs);
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                            // -----------
-                            // class Topic
-                            // -----------
+// -----------
+// class Topic
+// -----------
 
-inline
-Topic::Topic() :
-    d_handle(0)
-{}
-
-inline
-Topic::Topic(blpapi_Topic_t* handle) :
-    d_handle(blpapi_Topic_create(handle))
-{}
-
-inline
-Topic::Topic(Topic const& original) :
-    d_handle(blpapi_Topic_create(original.d_handle))
+inline Topic::Topic()
+    : d_handle(0)
 {
 }
 
-inline
-Topic::~Topic()
+inline Topic::Topic(blpapi_Topic_t *handle)
+    : d_handle(handle)
 {
-    blpapi_Topic_destroy(d_handle);
 }
 
-inline
-Topic& Topic::operator=(Topic const& rhs)
+inline Topic::Topic(Topic const& original)
+    : d_handle(blpapi_Topic_create(original.d_handle))
 {
-    if (this != &rhs) {
-        blpapi_Topic_destroy(d_handle);
-        d_handle = blpapi_Topic_create(rhs.d_handle);
-    }
+}
+
+inline Topic::~Topic() { blpapi_Topic_destroy(d_handle); }
+
+inline Topic& Topic::operator=(Topic const& rhs)
+{
+    using std::swap;
+
+    Topic tmp(rhs);
+    swap(tmp.d_handle, d_handle);
+
     return *this;
 }
 
-inline
-bool Topic::isValid() const
-{
-    return 0 != d_handle;
-}
+inline bool Topic::isValid() const { return 0 != d_handle; }
 
-inline
-bool Topic::isActive() const
+inline bool Topic::isActive() const
 {
     return blpapi_Topic_isActive(d_handle) != 0;
 }
 
-inline
-Service Topic::service() const
+inline Service Topic::service() const
 {
-    return blpapi_Topic_service(d_handle);
+    return Service(blpapi_Topic_service(d_handle));
 }
 
-inline
-const blpapi_Topic_t* Topic::impl() const
+inline const blpapi_Topic_t *Topic::impl() const { return d_handle; }
+
+inline blpapi_Topic_t *Topic::impl() { return d_handle; }
+
+inline bool operator==(Topic const& lhs, Topic const& rhs)
 {
-    return d_handle;
+    return blpapi_Topic_compare(lhs.impl(), rhs.impl()) == 0;
 }
 
-inline
-blpapi_Topic_t* Topic::impl()
+inline bool operator!=(Topic const& lhs, Topic const& rhs)
 {
-    return d_handle;
+    return blpapi_Topic_compare(lhs.impl(), rhs.impl()) != 0;
 }
 
-inline
-bool operator==(Topic const& lhs, Topic const& rhs)
+inline bool operator<(Topic const& lhs, Topic const& rhs)
 {
-    return blpapi_Topic_compare(lhs.impl(), rhs.impl())==0;
+    return blpapi_Topic_compare(lhs.impl(), rhs.impl()) < 0;
 }
 
-inline
-bool operator!=(Topic const& lhs, Topic const& rhs)
-{
-    return blpapi_Topic_compare(lhs.impl(), rhs.impl())!=0;
-}
-
-inline
-bool operator<(Topic const& lhs, Topic const& rhs)
-{
-    return blpapi_Topic_compare(lhs.impl(), rhs.impl())<0;
-}
-
-
-}  // close namespace blpapi
-}  // close namespace BloombergLP
+} // close namespace blpapi
+} // close namespace BloombergLP
 
 #endif // #ifdef __cplusplus
 #endif // #ifndef INCLUDED_BLPAPI_TOPIC
