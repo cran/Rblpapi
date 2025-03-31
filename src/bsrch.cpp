@@ -1,7 +1,7 @@
 //
 //  bsrch.cpp -- "Bloomberg SRCH" query function for the BLP API
 //
-//  Copyright (C) 2015 - 2024  Whit Armstrong and Dirk Eddelbuettel and John Laing
+//  Copyright (C) 2015 - 2025  Whit Armstrong and Dirk Eddelbuettel and John Laing
 //
 //  This file is part of Rblpapi
 //
@@ -18,6 +18,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with Rblpapi.  If not, see <http://www.gnu.org/licenses/>.
 
+#if defined(HaveBlp)
 #include <vector>
 #include <string>
 #include <blpapi_session.h>
@@ -26,18 +27,13 @@
 #include <blpapi_event.h>
 #include <blpapi_message.h>
 #include <blpapi_element.h>
-#include <Rcpp.h>
 #include <blpapi_utils.h>
-
-
 #include <iostream>
 #include <stdlib.h>
 #include <string.h>
 #include <fstream>
 #include <array>
 #include <iterator>
-
-
 #include <sstream>
 using namespace std;
 using namespace Rcpp;
@@ -54,14 +50,14 @@ using BloombergLP::blpapi::Name;
 Rcpp::DataFrame processBsrchResponse(Event event, const bool verbose) {
 
     MessageIterator msgIter(event); 			// create message iterator
-    if (!msgIter.next()) throw std::logic_error("Not a valid MessageIterator.");
+    if (!msgIter.next()) Rcpp::stop("Not a valid MessageIterator.");
 
     Message msg = msgIter.message(); 			// get message
     if (verbose) msg.print(Rcpp::Rcout);
 
     Element response = msg.asElement(); 		// view as element
     if (std::strncmp(response.name().string(), "GridResponse", std::strlen("GridResponse")) != 0)
-        throw std::logic_error("Not a valid GridResponse.");
+        Rcpp::stop("Not a valid GridResponse.");
 
     // exrsvc provides a grid in the form of DataRecords
     // Extract the dimensions and key attributes before processing
@@ -171,14 +167,16 @@ Rcpp::DataFrame processBsrchResponse(Event event, const bool verbose) {
     Rcpp::DataFrame df(lst);
     return df;
 }
-
+#else
+#include <Rcpp/Lightest>
+#endif
 
 // [[Rcpp::export]]
-DataFrame bsrch_Impl(SEXP con,
-                    std::string domain,
-                    std::string limit,
-                    bool verbose=false) {
-
+Rcpp::DataFrame bsrch_Impl(SEXP con,
+                           std::string domain,
+                           std::string limit,
+                           bool verbose=false) {
+#if defined(HaveBlp)
     Session* session = reinterpret_cast<Session*>(checkExternalPointer(con, "blpapi::Session*"));
 
     const std::string exrsrv = "//blp/exrsvc";
@@ -224,5 +222,8 @@ DataFrame bsrch_Impl(SEXP con,
     }
 
     return ans;
+#else // ie no Blp
+    return Rcpp::DataFrame();
+#endif
 
 }

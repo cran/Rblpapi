@@ -1,3 +1,112 @@
+2025-03-31  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (Version, Date): New release 0.3.16
+
+2025-03-14  Dirk Eddelbuettel  <edd@debian.org>
+
+	* src/authenticate.cpp: Redefine in terms of -DHaveBlp flag and bring
+	if/else inside the function itself
+        * src/bdh.cpp: Idem
+        * src/bdp.cpp: Idem
+        * src/bds.cpp: Idem
+        * src/beqs.cpp: Idem
+        * src/blpConnect.cpp: Idem
+        * src/blpVersion.cpp: Idem
+        * src/blpapi_utils.cpp: Idem
+        * src/bsrch.cpp: Idem
+        * src/fieldsearch.cpp: Idem
+        * src/getBars.cpp: Idem
+        * src/getFieldInfo.cpp: Idem
+        * src/getTicks.cpp: Idem
+        * src/lookup.cpp: Idem
+        * src/subscribe.cpp: Idem
+
+	* src/blpVersion.cpp: Define simple haveBlp() helper
+	* man/haveBlp.Rd: Documentation for haveBlp()
+	* R/init.R: Use more explicit haveBlp()
+
+2025-03-13  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (Version, Date): Roll micro version and date
+
+	* configure: Streamline and simplify conditional compilation
+	* src/Makevars.in: Idem
+
+	* .github/workflows/ci.yaml: Add macos-13 build for no-blp x86_64
+
+2025-03-12  John Laing  <john.laing@gmail.com>
+
+	* src/authenticate.cpp: Correct duplicate export declaration
+        * src/bdh.cpp: Idem
+        * src/bdp.cpp: Idem
+        * src/bds.cpp: Idem
+        * src/beqs.cpp: Idem
+        * src/blpConnect.cpp: Idem
+        * src/blpVersion.cpp: Idem
+        * src/blpapi_utils.cpp: Idem
+        * src/bsrch.cpp: Idem
+        * src/fieldsearch.cpp: Idem
+        * src/getBars.cpp: Idem
+        * src/getFieldInfo.cpp: Idem
+        * src/getTicks.cpp: Idem
+        * src/lookup.cpp: Idem
+        * src/subscribe.cpp: Idem
+
+2025-03-09  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (Version, Date): Roll micro version and date
+
+	* configure: Rework to actively support amd64 on Linux and arm64 on
+	macOS only and define -DNoBlpHere otherwise
+	* src/Makevars.in: Adjusted accordingly for link and install_name_tool
+	* src/authenticate.cpp: Compilation reflects #if defined(NoBlpHere)
+        * src/bdh.cpp: Idem
+        * src/bdp.cpp: Idem
+        * src/bds.cpp: Idem
+        * src/beqs.cpp: Idem
+        * src/blpConnect.cpp: Idem
+        * src/blpVersion.cpp: Idem
+        * src/blpapi_utils.cpp: Idem
+        * src/bsrch.cpp: Idem
+        * src/fieldsearch.cpp: Idem
+        * src/getBars.cpp: Idem
+        * src/getFieldInfo.cpp: Idem
+        * src/getTicks.cpp: Idem
+        * src/lookup.cpp: Idem
+        * src/subscribe.cpp: Idem
+	* R/init.R: Startup message adjusted for build with/without blp
+
+2025-03-08  Dirk Eddelbuettel  <edd@debian.org>
+
+	* .github/workflows/ci.yaml: Use r-ci action with embedded bootstrap
+
+2025-01-15  Kai Lin   <kai.lin@coolabahcapital.com>
+
+	* src/blpConnect.cpp: Add 'appIdentityKey' argument to 'blpConnect'
+	* R/blpConnect.R: Adjust and document R interface
+	* man/blpConnect.Rd: Regenerated
+	* src/RcppExports.cpp: Idem
+	* R/RcppExports.R: Idem
+
+2024-12-05  Dirk Eddelbuettel  <edd@debian.org>
+
+	* src/bdh.cpp: Use Rcpp::stop instead of throw
+	* src/bdp.cpp: Idem
+	* src/bds.cpp: Idem
+	* src/beqs.cpp: Idem
+	* src/blpapi_utils.cpp: Idem
+	* src/bsrch.cpp: Idem
+	* src/lookup.cpp: Idem
+	* src/subscribe.cpp: Idem
+
+2024-12-04  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (Version, Date): Roll micro version and date
+
+2024-11-25  Rodolphe Duge  <rodolphe.duge-de-bernonville@metori.com>
+
+	* src/bdp.c: Quota error handling on bdp request
+
 2024-09-18  Dirk Eddelbuettel  <edd@debian.org>
 
 	* DESCRIPTION (Version, Date): New release 0.3.15

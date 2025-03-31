@@ -2,7 +2,7 @@
 //  bdh.cpp -- "Bloomberg Data History" query function for the BLP API
 //
 //  Copyright (C) 2013      Whit Armstrong
-//  Copyright (C) 2015-2024 Whit Armstrong and Dirk Eddelbuettel
+//  Copyright (C) 2015-2025 Whit Armstrong and Dirk Eddelbuettel
 //
 //  This file is part of Rblpapi
 //
@@ -19,7 +19,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with Rblpapi.  If not, see <http://www.gnu.org/licenses/>.
 
-
+#if defined(HaveBlp)
 #include <vector>
 #include <string>
 #include <blpapi_session.h>
@@ -28,7 +28,6 @@
 #include <blpapi_event.h>
 #include <blpapi_message.h>
 #include <blpapi_element.h>
-#include <Rcpp.h>
 #include <blpapi_utils.h>
 
 using BloombergLP::blpapi::Session;
@@ -43,13 +42,13 @@ using BloombergLP::blpapi::Name;
 std::string getSecurityName(Event& event) {
     MessageIterator msgIter(event);
     if (!msgIter.next()) {
-        throw std::logic_error("Not a valid MessageIterator.");
+        Rcpp::stop("Not a valid MessageIterator.");
     }
 
     Message msg = msgIter.message();
     Element response = msg.asElement();
     if(std::strcmp(response.name().string(),"HistoricalDataResponse")) {
-        throw std::logic_error("Not a valid HistoricalDataResponse.");
+        Rcpp::stop("Not a valid HistoricalDataResponse.");
     }
 
     Element securityData = response.getElement(Name{"securityData"});
@@ -61,14 +60,14 @@ Rcpp::List HistoricalDataResponseToDF(Event& event, const std::vector<std::strin
                                       const std::vector<RblpapiT>& rtypes, bool verbose=FALSE) {
     MessageIterator msgIter(event);
     if (!msgIter.next()) {
-        throw std::logic_error("Not a valid MessageIterator.");
+        Rcpp::stop("Not a valid MessageIterator.");
     }
 
     Message msg = msgIter.message();
     Element response = msg.asElement();
     if (verbose) response.print(Rcpp::Rcout);
     if (std::strcmp(response.name().string(),"HistoricalDataResponse")) {
-        throw std::logic_error("Not a valid HistoricalDataResponse.");
+        Rcpp::stop("Not a valid HistoricalDataResponse.");
     }
     Element securityData = response.getElement(Name{"securityData"});
     Element fieldData = securityData.getElement(Name{"fieldData"});
@@ -81,13 +80,16 @@ Rcpp::List HistoricalDataResponseToDF(Event& event, const std::vector<std::strin
         for(size_t j = 0; j < row.numElements(); ++j) {
             Element e = row.getElement(j);
             auto it = std::find(fields.begin(),fields.end(),e.name().string());
-            if(it==fields.end()) { throw std::logic_error("Unexpected field returned."); }
+            if(it==fields.end()) { Rcpp::stop("Unexpected field returned."); }
             int colindex = std::distance(fields.begin(),it);
             populateDfRow(res[colindex], i, e, rtypes[colindex]);
         }
     }
     return res;
 }
+#else
+#include <Rcpp/Lightest>
+#endif
 
 // Simpler interface with std::vector<std::string> thanks to Rcpp::Attributes
 // [[Rcpp::export]]
@@ -98,6 +100,8 @@ Rcpp::List bdh_Impl(SEXP con_,
                     SEXP options_, SEXP overrides_,
                     bool verbose, SEXP identity_,
                     bool int_as_double) {
+
+#if defined(HaveBlp)
 
     Session* session =
         reinterpret_cast<Session*>(checkExternalPointer(con_,"blpapi::Session*"));
@@ -188,4 +192,8 @@ Rcpp::List bdh_Impl(SEXP con_,
     }
     ans.attr("names") = ans_names;
     return ans;
+
+#else // ie no Blp
+    return Rcpp::List();
+#endif
 }

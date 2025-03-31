@@ -2,7 +2,7 @@
 //  fieldsearch.cpp -- a simple field search function for the BLP API
 //
 //  Copyright (C) 2013         Whit Armstrong
-//  Copyright (C) 2014 - 2024  Whit Armstrong and Dirk Eddelbuettel
+//  Copyright (C) 2014 - 2025  Whit Armstrong and Dirk Eddelbuettel
 //
 //  This file is part of Rblpapi
 //
@@ -42,10 +42,9 @@
  * IN THE SOFTWARE.
  */
 
-
+#if defined(HaveBlp)
 #include <blpapi_session.h>
 #include <blpapi_utils.h>
-
 namespace bbg = BloombergLP::blpapi;	// shortcut to not globally import both namespace
 
 namespace {
@@ -57,10 +56,13 @@ namespace {
     const bbg::Name FIELD_ERROR("fieldError");
     const bbg::Name FIELD_MSG("message");
 }
+#else
+#include <Rcpp/Lightest>
+#endif
 
 // [[Rcpp::export]]
 Rcpp::DataFrame fieldSearch_Impl(SEXP con, std::string searchterm) {
-
+#if defined(HaveBlp)
     // via Rcpp Attributes we get a try/catch block with error propagation to R "for free"
     bbg::Session* session =
         reinterpret_cast<bbg::Session*>(checkExternalPointer(con,"blpapi::Session*"));
@@ -117,4 +119,8 @@ Rcpp::DataFrame fieldSearch_Impl(SEXP con, std::string searchterm) {
     return Rcpp::DataFrame::create(Rcpp::Named("Id")          = fieldId,
                                    Rcpp::Named("Mnemonic")    = fieldMnen,
                                    Rcpp::Named("Description") = fieldDesc);
+#else // ie no Blp
+    return Rcpp::DataFrame();
+#endif
+
 }

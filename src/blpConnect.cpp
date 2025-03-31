@@ -2,9 +2,9 @@
 //
 //  blpConnect.cpp -- Function to establish Bloomberg connection
 //
-//  Copyright (C) 2013  Whit Armstrong
-//  Copyright (C) 2015  Whit Armstrong and Dirk Eddelbuettel
-//  Copyright (C) 2019  Whit Armstrong, Dirk Eddelbuettel and Alfred Kanzler
+//  Copyright (C) 2013-2025  Whit Armstrong
+//  Copyright (C) 2015-2025  Whit Armstrong and Dirk Eddelbuettel
+//  Copyright (C) 2019-2025  Whit Armstrong, Dirk Eddelbuettel and Alfred Kanzler
 //
 //  This file is part of Rblpapi
 //
@@ -21,9 +21,9 @@
 //  You should have received a copy of the GNU General Public License
 //  along with Rblpapi.  If not, see <http://www.gnu.org/licenses/>.
 
+#if defined(HaveBlp)
 #include <string>
 #include <blpapi_session.h>
-#include <Rcpp.h>
 #include <finalizers.h>
 
 using BloombergLP::blpapi::Session;
@@ -40,9 +40,13 @@ static void sessionFinalizer(SEXP session_) {
         R_ClearExternalPtr(session_);
     }
 }
+#else
+#include <Rcpp/Lightest>
+#endif
 
 // [[Rcpp::export]]
-SEXP blpConnect_Impl(const std::string host, const int port, SEXP app_name_) {
+SEXP blpConnect_Impl(const std::string host, const int port, SEXP app_name_, SEXP app_identity_key_) {
+#if defined(HaveBlp)
     SessionOptions sessionOptions;
     sessionOptions.setServerHost(host.c_str());
     sessionOptions.setServerPort(port);
@@ -51,6 +55,10 @@ SEXP blpConnect_Impl(const std::string host, const int port, SEXP app_name_) {
         std::string app_name = Rcpp::as<std::string>(app_name_);
         std::string authentication_string = APP_PREFIX + app_name;
         sessionOptions.setAuthenticationOptions(authentication_string.c_str());
+    }
+    if (app_identity_key_ != R_NilValue) {
+        std::string app_identity_key = Rcpp::as<std::string>(app_identity_key_);
+        sessionOptions.setApplicationIdentityKey(app_identity_key);
     }
     Session* sp = new Session(sessionOptions);
 
@@ -62,4 +70,7 @@ SEXP blpConnect_Impl(const std::string host, const int port, SEXP app_name_) {
     }
 
     return createExternalPointer<Session>(sp, sessionFinalizer, "blpapi::Session*");
+#else // ie no Blp
+    return R_NilValue;
+#endif
 }

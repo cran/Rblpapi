@@ -25,8 +25,8 @@ beqs_Impl <- function(con, screenName, screenType, group, pitdate, languageId, v
     .Call(`_Rblpapi_beqs_Impl`, con, screenName, screenType, group, pitdate, languageId, verbose)
 }
 
-blpConnect_Impl <- function(host, port, app_name_) {
-    .Call(`_Rblpapi_blpConnect_Impl`, host, port, app_name_)
+blpConnect_Impl <- function(host, port, app_name_, app_identity_key_) {
+    .Call(`_Rblpapi_blpConnect_Impl`, host, port, app_name_, app_identity_key_)
 }
 
 #' This function retrieves the version of Bloomberg API headers.
@@ -57,6 +57,15 @@ getHeaderVersion <- function() {
 #' }
 getRuntimeVersion <- function() {
     .Call(`_Rblpapi_getRuntimeVersion`)
+}
+
+#' This function returns a boolean indicating whether Blp support is available.
+#'
+#' @title Get Blp availability in current build
+#' @return A logical indicating whether Blp was available at build.
+#' @author Dirk Eddelbuettel
+haveBlp <- function() {
+    .Call(`_Rblpapi_haveBlp`)
 }
 
 bsrch_Impl <- function(con, domain, limit, verbose = FALSE) {

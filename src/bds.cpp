@@ -2,7 +2,7 @@
 //  bds.cpp -- "Bloomberg Data Set" query function for the BLP API
 //
 //  Copyright (C) 2013         Whit Armstrong
-//  Copyright (C) 2015 - 2024  Whit Armstrong and Dirk Eddelbuettel
+//  Copyright (C) 2015 - 2025  Whit Armstrong and Dirk Eddelbuettel
 //
 //  This file is part of Rblpapi
 //
@@ -19,6 +19,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with Rblpapi.  If not, see <http://www.gnu.org/licenses/>.
 
+#if defined(HaveBlp)
 #include <vector>
 #include <string>
 #include <blpapi_session.h>
@@ -27,7 +28,6 @@
 #include <blpapi_event.h>
 #include <blpapi_message.h>
 #include <blpapi_element.h>
-#include <Rcpp.h>
 #include <blpapi_utils.h>
 
 using BloombergLP::blpapi::Session;
@@ -99,7 +99,7 @@ void populateDfRowBDS(Rcpp::RObject ans, R_len_t row_index, Element& e) {
     case BLPAPI_DATATYPE_CORRELATION_ID:
         INTEGER(ans)[row_index] = e.getValueAsInt32(); break;
     default:
-        throw std::logic_error("Unsupported datatype outside of api blpapi_DataType_t scope.");
+        Rcpp::stop("Unsupported datatype outside of api blpapi_DataType_t scope.");
     }
 }
 
@@ -218,14 +218,14 @@ Rcpp::List bulkArrayToDf(Element& fieldData) {
 Rcpp::List BulkDataResponseToDF(Event& event, std::string& requested_field, std::string response_type, bool verbose) {
     MessageIterator msgIter(event);
     if(!msgIter.next()) {
-        throw std::logic_error("Not a valid MessageIterator.");
+        Rcpp::stop("Not a valid MessageIterator.");
     }
 
     Message msg = msgIter.message();
     Element response = msg.asElement();
     if (verbose) response.print(Rcpp::Rcout);
     if(std::strcmp(response.name().string(),response_type.c_str())) {
-        throw std::logic_error("Not a valid " + response_type + ".");
+        Rcpp::stop("Not a valid " + response_type + ".");
     }
     Element securityData = response.getElement(Name{"securityData"});
 
@@ -246,12 +246,17 @@ Rcpp::List BulkDataResponseToDF(Event& event, std::string& requested_field, std:
     ans.attr("names") = ans_names;
     return ans;
 }
+#else
+#include <Rcpp/Lightest>
+#endif
 
 // only allow one field for bds in contrast to bdp
 // [[Rcpp::export]]
 Rcpp::List bds_Impl(SEXP con_, std::vector<std::string> securities,
                     std::string field, SEXP options_, SEXP overrides_,
                     bool verbose, SEXP identity_) {
+
+#if defined(HaveBlp)
 
     Session* session =
         reinterpret_cast<Session*>(checkExternalPointer(con_, "blpapi::Session*"));
@@ -290,13 +295,18 @@ Rcpp::List bds_Impl(SEXP con_, std::vector<std::string> securities,
         }
         if (event.eventType() == Event::RESPONSE) { break; }
     }
-    return R_NilValue;
+    return Rcpp::List();
+#else // ie no Blp
+    return Rcpp::List();
+#endif
 }
 
 // [[Rcpp::export]]
 Rcpp::List getPortfolio_Impl(SEXP con_, std::vector<std::string> securities,
-                    std::string field, SEXP options_, SEXP overrides_,
-                    bool verbose, SEXP identity_) {
+                             std::string field, SEXP options_, SEXP overrides_,
+                             bool verbose, SEXP identity_) {
+
+#if defined(HaveBlp)
 
     Session* session =
         reinterpret_cast<Session*>(checkExternalPointer(con_, "blpapi::Session*"));
@@ -335,5 +345,8 @@ Rcpp::List getPortfolio_Impl(SEXP con_, std::vector<std::string> securities,
         }
         if (event.eventType() == Event::RESPONSE) { break; }
     }
-    return R_NilValue;
+    return Rcpp::List();
+#else // ie no Blp
+    return Rcpp::List();
+#endif
 }

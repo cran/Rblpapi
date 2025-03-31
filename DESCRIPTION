@@ -1,7 +1,7 @@
 Package: Rblpapi
 Title: R Interface to 'Bloomberg'
-Version: 0.3.15
-Date: 2024-09-18
+Version: 0.3.16
+Date: 2025-03-31
 Authors@R: c(person("Whit", "Armstrong", role = "aut"),
              person("Dirk", "Eddelbuettel", role = c("aut", "cre"), email = "edd@debian.org",
                     comment = c(ORCID = "0000-0001-6419-907X")),
@@ -20,17 +20,20 @@ SystemRequirements: A valid Bloomberg installation. The API headers and
         for API documentation. Currently supported platforms are
         Windows and Linux (both for x86-64 processors only) as well as
         macOS (for arm64 only).  Other os-cpu pairings are not
-        supported by Bloomberg and can therefore not be supported here.
+        supported by Bloomberg and can therefore not be fully supported
+        here.
 URL: https://dirk.eddelbuettel.com/code/rblpapi.html,
         https://github.com/Rblp/Rblpapi
 BugReports: https://github.com/Rblp/Rblpapi/issues
 License: file LICENSE
 RoxygenNote: 6.0.1
 NeedsCompilation: yes
-Packaged: 2024-09-18 11:49:02 UTC; edd
+Packaged: 2025-03-31 12:24:40 UTC; edd
 Author: Whit Armstrong [aut],
   Dirk Eddelbuettel [aut, cre] (<https://orcid.org/0000-0001-6419-907X>),
   John Laing [aut]
 Maintainer: Dirk Eddelbuettel <edd@debian.org>
+License_restricts_use: no
+License_is_FOSS: no
 Repository: CRAN
-Date/Publication: 2024-09-18 12:10:02 UTC
+Date/Publication: 2025-03-31 19:00:03 UTC

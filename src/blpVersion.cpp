@@ -2,7 +2,7 @@
 //
 //  blpVersion.cpp -- Version of the Bloomberg API
 //
-//  Copyright (C) 2016  Whit Armstrong and Dirk Eddelbuettel and John Laing
+//  Copyright (C) 2016-2025  Whit Armstrong and Dirk Eddelbuettel and John Laing
 //
 //  This file is part of Rblpapi
 //
@@ -19,10 +19,12 @@
 //  You should have received a copy of the GNU General Public License
 //  along with Rblpapi.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <Rcpp.h>
+#if defined(HaveBlp)
 #include <blpapi_versioninfo.h>
-
 using BloombergLP::blpapi::VersionInfo;
+#else
+#include <Rcpp/Lightest>
+#endif
 
 // ' This function retrieves the version string of the Bloomberg API.
 // '
@@ -60,6 +62,7 @@ using BloombergLP::blpapi::VersionInfo;
 //' }
 // [[Rcpp::export]]
 std::string getHeaderVersion() {
+#if defined(HaveBlp)
     // VersionInfo vi = VersionInfo::headerVersion();
     // //Rcpp::Rcout << vi << std::endl;
     // char txt[128];
@@ -76,6 +79,9 @@ std::string getHeaderVersion() {
              BLPAPI_VERSION_PATCH,
              BLPAPI_VERSION_BUILD);
     return std::string(txt);
+#else
+    return std::string();
+#endif
 }
 
 //' This function retrieves the version of Bloomberg API run-time.
@@ -91,6 +97,7 @@ std::string getHeaderVersion() {
 //' }
 // [[Rcpp::export]]
 std::string getRuntimeVersion() {
+#if defined(HaveBlp)
     // VersionInfo vi = VersionInfo::runtimeVersion();
     // //Rcpp::Rcout << vi << std::endl;
     // char txt[128];
@@ -106,4 +113,21 @@ std::string getRuntimeVersion() {
     snprintf(txt, 127, "%d.%d.%d.%d",
              major, minor, patch, build);
     return std::string(txt);
+#else
+    return std::string();
+#endif
+}
+
+//' This function returns a boolean indicating whether Blp support is available.
+//'
+//' @title Get Blp availability in current build
+//' @return A logical indicating whether Blp was available at build.
+//' @author Dirk Eddelbuettel
+// [[Rcpp::export]]
+bool haveBlp() {
+#if defined(HaveBlp)
+    return true;
+#else
+    return false;
+#endif
 }

@@ -2,7 +2,7 @@
 //
 //  subscribe.cpp -- market data subscription function for the BLP API
 //
-//  Copyright (C) 2015  Whit Armstrong
+//  Copyright (C) 2015-2025  Whit Armstrong
 //
 //  This file is part of Rblpapi
 //
@@ -19,10 +19,9 @@
 //  You should have received a copy of the GNU General Public License
 //  along with Rblpapi.  If not, see <http://www.gnu.org/licenses/>.
 
+#if defined(HaveBlp)
 
 // compare to SimpleSubscriptionExample.cpp
-
-
 #include <iostream>
 #include <vector>
 #include <map>
@@ -35,7 +34,6 @@
 #include <blpapi_message.h>
 #include <blpapi_session.h>
 #include <blpapi_subscriptionlist.h>
-#include <Rcpp.h>
 #include <blpapi_utils.h>
 
 using BloombergLP::blpapi::Session;
@@ -164,13 +162,16 @@ SEXP recursiveParse(const Element& e) {
         }
     }
 }
+#else
+#include <Rcpp/Lightest>
+#endif
 
 // [[Rcpp::export]]
-SEXP subscribe_Impl(SEXP con_, std::vector<std::string> securities, std::vector<std::string> fields, Rcpp::Function fun,
-                    SEXP options_, SEXP identity_) {
-
+SEXP subscribe_Impl(SEXP con_, std::vector<std::string> securities, std::vector<std::string> fields,
+                    Rcpp::Function fun, SEXP options_, SEXP identity_) {
+#if defined(HaveBlp)
     // via Rcpp Attributes we get a try/catch block with error propagation to R "for free"
-    Session* session = 
+    Session* session =
         reinterpret_cast<Session*>(checkExternalPointer(con_, "blpapi::Session*"));
 
     const std::string mdsrv = "//blp/mktdata";
@@ -214,7 +215,7 @@ SEXP subscribe_Impl(SEXP con_, std::vector<std::string> securities, std::vector<
                     Rcpp::List ans;
                     auto it = BlpapiEventToString.find(event.eventType());
                     if(it==BlpapiEventToString.end()) {
-                        throw Rcpp::exception("Unknown event type.");
+                        Rcpp::stop("Unknown event type.");
                     }
                     ans["event.type"] = it->second;
                     size_t cid(msg.correlationId().asInteger());
@@ -231,4 +232,7 @@ SEXP subscribe_Impl(SEXP con_, std::vector<std::string> securities, std::vector<
         session->unsubscribe(subscriptions);
     }
     return R_NilValue;
+#else // ie no Blp
+    return R_NilValue;
+#endif
 }
